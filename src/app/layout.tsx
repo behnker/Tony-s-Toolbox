@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'AI Tool Explorer',
-  description: 'Discover, share, and explore the best AI tools and workflows.',
+  title: "Tony's Toolbox",
+  description: "Discover, share, and explore the best AI tools and workflows.",
 };
 
 export default function RootLayout({

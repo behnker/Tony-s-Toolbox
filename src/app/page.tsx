@@ -77,7 +77,7 @@ export default function Home() {
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="mb-8">
             <h1 className="text-4xl md:text-5xl font-bold font-headline text-center mb-2 text-foreground">
-                AI Tool Explorer
+                Tony's Toolbox
             </h1>
             <p className="text-lg md:text-xl text-center text-muted-foreground max-w-3xl mx-auto">
                 Discover, share, and explore the best AI tools and workflows. Filter by use-case, price, and more to find the perfect tool for your needs.
@@ -113,7 +113,7 @@ export default function Home() {
         )}
       </main>
       <footer className="py-6 text-center text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} AI Tool Explorer. All Rights Reserved.</p>
+        <p>&copy; {new Date().getFullYear()} Tony's Toolbox. All Rights Reserved.</p>
       </footer>
     </div>
   );

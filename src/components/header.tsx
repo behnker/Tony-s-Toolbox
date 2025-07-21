@@ -18,7 +18,7 @@ export function AppHeader({ onToolSubmitted }: AppHeaderProps) {
           <a className="mr-6 flex items-center space-x-2" href="/">
             <Logo className="h-6 w-6 text-primary" />
             <span className="hidden font-bold sm:inline-block font-headline">
-              AI Tool Explorer
+              Tony's Toolbox
             </span>
           </a>
         </div>
