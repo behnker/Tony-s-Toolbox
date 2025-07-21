@@ -10,13 +10,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import type { Price, EaseOfUse } from "@/lib/types";
+import { Sparkles } from "lucide-react";
 
 export type FilterState = {
   search: string;
   category: string;
   price: "all" | Price;
   easeOfUse: "all" | EaseOfUse;
+  recommended: boolean;
 };
 
 export type SortState = "popular" | "newest";
@@ -36,7 +39,10 @@ export function Filters({
   setSortBy,
   categories,
 }: FiltersProps) {
-  const handleFilterChange = (key: keyof FilterState, value: string) => {
+  const handleFilterChange = (
+    key: keyof FilterState,
+    value: string | boolean
+  ) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -56,7 +62,7 @@ export function Filters({
 
   return (
     <div className="mb-8 p-4 border rounded-lg bg-card shadow-sm">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
         <div className="lg:col-span-2">
           <Label htmlFor="search">Search</Label>
           <Input
@@ -78,7 +84,9 @@ export function Filters({
             <SelectContent>
               {categories.map((cat) => (
                 <SelectItem key={cat} value={cat}>
-                  {cat === "all" ? "All Categories" : cat.charAt(0).toUpperCase() + cat.slice(1).replace('-', ' ')}
+                  {cat === "all"
+                    ? "All Categories"
+                    : cat.charAt(0).toUpperCase() + cat.slice(1).replace("-", " ")}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -104,7 +112,10 @@ export function Filters({
         </div>
         <div>
           <Label htmlFor="sort-by">Sort By</Label>
-          <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortState)}>
+          <Select
+            value={sortBy}
+            onValueChange={(value) => setSortBy(value as SortState)}
+          >
             <SelectTrigger id="sort-by">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
@@ -113,6 +124,22 @@ export function Filters({
               <SelectItem value="newest">Newest</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+      </div>
+      <div className="mt-4 pt-4 border-t">
+        <div className="flex items-center space-x-2">
+            <Checkbox
+                id="recommended"
+                checked={filters.recommended}
+                onCheckedChange={(checked) => handleFilterChange("recommended", !!checked)}
+            />
+            <Label
+                htmlFor="recommended"
+                className="flex items-center gap-2 font-medium"
+            >
+                <Sparkles className="h-4 w-4 text-primary" />
+                Community Recommended
+            </Label>
         </div>
       </div>
     </div>

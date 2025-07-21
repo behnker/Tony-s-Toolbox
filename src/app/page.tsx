@@ -17,6 +17,7 @@ export default function Home() {
     category: "all",
     price: "all",
     easeOfUse: "all",
+    recommended: false,
   });
   const [sortBy, setSortBy] = useState<SortState>("popular");
 
@@ -46,8 +47,9 @@ export default function Home() {
       const priceMatch = filters.price === "all" || tool.price === filters.price;
       const easeOfUseMatch =
         filters.easeOfUse === "all" || tool.easeOfUse === filters.easeOfUse;
+      const recommendedMatch = !filters.recommended || (!!tool.submittedBy && !!tool.justification);
 
-      return (nameMatch || descriptionMatch) && categoryMatch && priceMatch && easeOfUseMatch;
+      return (nameMatch || descriptionMatch) && categoryMatch && priceMatch && easeOfUseMatch && recommendedMatch;
     });
 
     return filtered.sort((a, b) => {
