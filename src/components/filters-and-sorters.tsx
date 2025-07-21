@@ -19,6 +19,7 @@ export type FilterState = {
   category: string;
   price: "all" | Price;
   easeOfUse: "all" | EaseOfUse;
+  submittedBy: string;
   recommended: boolean;
 };
 
@@ -62,8 +63,8 @@ export function Filters({
 
   return (
     <div className="mb-8 p-4 border rounded-lg bg-card shadow-sm">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 items-end">
+        <div className="lg:col-span-1">
           <Label htmlFor="search">Search</Label>
           <Input
             id="search"
@@ -110,24 +111,53 @@ export function Filters({
             </SelectContent>
           </Select>
         </div>
-        <div>
-          <Label htmlFor="sort-by">Sort By</Label>
-          <Select
-            value={sortBy}
-            onValueChange={(value) => setSortBy(value as SortState)}
-          >
-            <SelectTrigger id="sort-by">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="popular">Popular</SelectItem>
-              <SelectItem value="newest">Newest</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="xl:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+            <Label htmlFor="easeOfUse">Ease of Use</Label>
+            <Select
+                value={filters.easeOfUse}
+                onValueChange={(value) => handleFilterChange("easeOfUse", value)}
+            >
+                <SelectTrigger id="easeOfUse">
+                <SelectValue placeholder="Select level" />
+                </SelectTrigger>
+                <SelectContent>
+                {easeOfUseOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                    </SelectItem>
+                ))}
+                </SelectContent>
+            </Select>
+            </div>
+            <div>
+            <Label htmlFor="sort-by">Sort By</Label>
+            <Select
+                value={sortBy}
+                onValueChange={(value) => setSortBy(value as SortState)}
+            >
+                <SelectTrigger id="sort-by">
+                <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                <SelectItem value="popular">Popular</SelectItem>
+                <SelectItem value="newest">Newest</SelectItem>
+                </SelectContent>
+            </Select>
+            </div>
         </div>
       </div>
-      <div className="mt-4 pt-4 border-t">
-        <div className="flex items-center space-x-2">
+      <div className="mt-4 pt-4 border-t flex flex-wrap gap-4 items-end">
+        <div className="flex-1 min-w-[200px]">
+            <Label htmlFor="submittedBy">Recommended by</Label>
+            <Input
+                id="submittedBy"
+                placeholder="Enter a name..."
+                value={filters.submittedBy}
+                onChange={(e) => handleFilterChange("submittedBy", e.target.value)}
+            />
+        </div>
+        <div className="flex items-center space-x-2 pb-1">
             <Checkbox
                 id="recommended"
                 checked={filters.recommended}

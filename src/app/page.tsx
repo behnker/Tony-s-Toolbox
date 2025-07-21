@@ -17,6 +17,7 @@ export default function Home() {
     category: "all",
     price: "all",
     easeOfUse: "all",
+    submittedBy: "",
     recommended: false,
   });
   const [sortBy, setSortBy] = useState<SortState>("popular");
@@ -40,6 +41,8 @@ export default function Home() {
   const filteredAndSortedTools = useMemo(() => {
     let filtered = tools.filter((tool) => {
       const searchLower = filters.search.toLowerCase();
+      const submittedByLower = filters.submittedBy.toLowerCase();
+
       const nameMatch = tool.name.toLowerCase().includes(searchLower);
       const descriptionMatch = tool.description.toLowerCase().includes(searchLower);
       const categoryMatch =
@@ -47,9 +50,12 @@ export default function Home() {
       const priceMatch = filters.price === "all" || tool.price === filters.price;
       const easeOfUseMatch =
         filters.easeOfUse === "all" || tool.easeOfUse === filters.easeOfUse;
+      
+      const submittedByMatch = !filters.submittedBy || (tool.submittedBy && tool.submittedBy.toLowerCase().includes(submittedByLower));
+
       const recommendedMatch = !filters.recommended || (!!tool.submittedBy && !!tool.justification);
 
-      return (nameMatch || descriptionMatch) && categoryMatch && priceMatch && easeOfUseMatch && recommendedMatch;
+      return (nameMatch || descriptionMatch) && categoryMatch && priceMatch && easeOfUseMatch && submittedByMatch && recommendedMatch;
     });
 
     return filtered.sort((a, b) => {
