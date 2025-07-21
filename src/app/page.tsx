@@ -17,8 +17,7 @@ export default function Home() {
     category: "all",
     price: "all",
     easeOfUse: "all",
-    submittedBy: "",
-    recommended: false,
+    submittedBy: "all",
   });
   const [sortBy, setSortBy] = useState<SortState>("popular");
 
@@ -41,7 +40,6 @@ export default function Home() {
   const filteredAndSortedTools = useMemo(() => {
     let filtered = tools.filter((tool) => {
       const searchLower = filters.search.toLowerCase();
-      const submittedByLower = filters.submittedBy.toLowerCase();
 
       const nameMatch = tool.name.toLowerCase().includes(searchLower);
       const descriptionMatch = tool.description.toLowerCase().includes(searchLower);
@@ -51,11 +49,9 @@ export default function Home() {
       const easeOfUseMatch =
         filters.easeOfUse === "all" || tool.easeOfUse === filters.easeOfUse;
       
-      const submittedByMatch = !filters.submittedBy || (tool.submittedBy && tool.submittedBy.toLowerCase().includes(submittedByLower));
+      const submittedByMatch = filters.submittedBy === 'all' || tool.submittedBy === filters.submittedBy;
 
-      const recommendedMatch = !filters.recommended || (!!tool.submittedBy && !!tool.justification);
-
-      return (nameMatch || descriptionMatch) && categoryMatch && priceMatch && easeOfUseMatch && submittedByMatch && recommendedMatch;
+      return (nameMatch || descriptionMatch) && categoryMatch && priceMatch && easeOfUseMatch && submittedByMatch;
     });
 
     return filtered.sort((a, b) => {
@@ -77,6 +73,16 @@ export default function Home() {
     return ["all", ...Array.from(categories)];
   }, [tools]);
   
+  const allSubmitters = useMemo(() => {
+    const submitters = new Set<string>();
+    tools.forEach((tool) => {
+      if (tool.submittedBy) {
+        submitters.add(tool.submittedBy);
+      }
+    });
+    return ["all", ...Array.from(submitters)];
+  }, [tools]);
+
   return (
     <div className="flex flex-col min-h-screen">
       <AppHeader onToolSubmitted={handleToolSubmitted} />
@@ -96,6 +102,7 @@ export default function Home() {
           sortBy={sortBy}
           setSortBy={setSortBy}
           categories={allCategories}
+          submitters={allSubmitters}
         />
 
         {isMounted ? (

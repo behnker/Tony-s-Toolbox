@@ -10,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import type { Price, EaseOfUse } from "@/lib/types";
 import { Sparkles } from "lucide-react";
 
@@ -20,7 +19,6 @@ export type FilterState = {
   price: "all" | Price;
   easeOfUse: "all" | EaseOfUse;
   submittedBy: string;
-  recommended: boolean;
 };
 
 export type SortState = "popular" | "newest";
@@ -31,6 +29,7 @@ type FiltersProps = {
   sortBy: SortState;
   setSortBy: React.Dispatch<React.SetStateAction<SortState>>;
   categories: string[];
+  submitters: string[];
 };
 
 export function Filters({
@@ -39,6 +38,7 @@ export function Filters({
   sortBy,
   setSortBy,
   categories,
+  submitters,
 }: FiltersProps) {
   const handleFilterChange = (
     key: keyof FilterState,
@@ -63,7 +63,7 @@ export function Filters({
 
   return (
     <div className="mb-8 p-4 border rounded-lg bg-card shadow-sm">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 items-end">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-end">
         <div className="lg:col-span-1">
           <Label htmlFor="search">Search</Label>
           <Input
@@ -111,8 +111,7 @@ export function Filters({
             </SelectContent>
           </Select>
         </div>
-        <div className="xl:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+        <div>
             <Label htmlFor="easeOfUse">Ease of Use</Label>
             <Select
                 value={filters.easeOfUse}
@@ -129,8 +128,31 @@ export function Filters({
                 ))}
                 </SelectContent>
             </Select>
-            </div>
-            <div>
+        </div>
+      </div>
+      <div className="mt-4 pt-4 border-t flex flex-wrap gap-4 items-end">
+        <div className="flex-1 min-w-[200px]">
+            <Label htmlFor="submittedBy" className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                Developed by Community Member
+            </Label>
+            <Select
+                value={filters.submittedBy}
+                onValueChange={(value) => handleFilterChange("submittedBy", value)}
+            >
+                <SelectTrigger id="submittedBy">
+                    <SelectValue placeholder="Select member" />
+                </SelectTrigger>
+                <SelectContent>
+                {submitters.map((submitter) => (
+                    <SelectItem key={submitter} value={submitter}>
+                    {submitter === "all" ? "All Members" : submitter}
+                    </SelectItem>
+                ))}
+                </SelectContent>
+            </Select>
+        </div>
+        <div className="flex-1 min-w-[200px]">
             <Label htmlFor="sort-by">Sort By</Label>
             <Select
                 value={sortBy}
@@ -144,32 +166,6 @@ export function Filters({
                 <SelectItem value="newest">Newest</SelectItem>
                 </SelectContent>
             </Select>
-            </div>
-        </div>
-      </div>
-      <div className="mt-4 pt-4 border-t flex flex-wrap gap-4 items-end">
-        <div className="flex-1 min-w-[200px]">
-            <Label htmlFor="submittedBy">Recommended by</Label>
-            <Input
-                id="submittedBy"
-                placeholder="Enter a name..."
-                value={filters.submittedBy}
-                onChange={(e) => handleFilterChange("submittedBy", e.target.value)}
-            />
-        </div>
-        <div className="flex items-center space-x-2 pb-1">
-            <Checkbox
-                id="recommended"
-                checked={filters.recommended}
-                onCheckedChange={(checked) => handleFilterChange("recommended", !!checked)}
-            />
-            <Label
-                htmlFor="recommended"
-                className="flex items-center gap-2 font-medium"
-            >
-                <Sparkles className="h-4 w-4 text-primary" />
-                Community Submitted
-            </Label>
         </div>
       </div>
     </div>
