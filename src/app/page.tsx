@@ -10,6 +10,7 @@ import type { Tool } from "@/lib/types";
 import { getTools } from "@/lib/firebase/service";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Timestamp } from "firebase/firestore";
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
@@ -74,9 +75,15 @@ export default function Home() {
         return (a.upvotes - a.downvotes) - (b.upvotes - b.downvotes);
       }
       if (sortBy === "newest") {
-        // Ensure submittedAt are Date objects for correct comparison
-        const dateA = a.submittedAt instanceof Date ? a.submittedAt : new Date(a.submittedAt as any);
-        const dateB = b.submittedAt instanceof Date ? b.submittedAt : new Date(b.submittedAt as any);
+        // Robust date comparison
+        const toDate = (date: Date | Timestamp): Date => {
+          if (date instanceof Timestamp) {
+            return date.toDate();
+          }
+          return date;
+        }
+        const dateA = toDate(a.submittedAt);
+        const dateB = toDate(b.submittedAt);
         return dateB.getTime() - dateA.getTime();
       }
       return 0;
