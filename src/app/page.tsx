@@ -27,6 +27,14 @@ export default function Home() {
   const handleToolSubmitted = (newTool: Tool) => {
     setTools((prevTools) => [newTool, ...prevTools]);
   };
+  
+  const handleVoteChange = (toolId: string, newVotes: number) => {
+    setTools(prevTools =>
+      prevTools.map(tool =>
+        tool.id === toolId ? { ...tool, votes: newVotes } : tool
+      )
+    );
+  };
 
   const filteredAndSortedTools = useMemo(() => {
     let filtered = tools.filter((tool) => {
@@ -44,7 +52,7 @@ export default function Home() {
 
     return filtered.sort((a, b) => {
       if (sortBy === "popular") {
-        return b.popularity - a.popularity;
+        return b.votes - a.votes;
       }
       if (sortBy === "newest") {
         return b.submittedAt.getTime() - a.submittedAt.getTime();
@@ -85,7 +93,7 @@ export default function Home() {
         {isMounted ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredAndSortedTools.map((tool) => (
-                    <ToolCard key={tool.id} tool={tool} />
+                    <ToolCard key={tool.id} tool={tool} onVoteChange={handleVoteChange} />
                 ))}
             </div>
         ) : (

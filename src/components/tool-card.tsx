@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from 'react';
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -18,14 +19,46 @@ import {
     DialogTrigger,
   } from "@/components/ui/dialog"
 import type { Tool } from "@/lib/types";
-import { ArrowUpRight, Calendar, Coins, PersonStanding, Sparkles, Star } from "lucide-react";
+import { ArrowUpRight, Calendar, Coins, PersonStanding, Sparkles, Star, ArrowBigUp, ArrowBigDown } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { Button } from './ui/button';
+import { cn } from '@/lib/utils';
 
 type ToolCardProps = {
   tool: Tool;
+  onVoteChange: (toolId: string, newVotes: number) => void;
 };
 
-export function ToolCard({ tool }: ToolCardProps) {
+export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
+  const [vote, setVote] = React.useState<'up' | 'down' | null>(null);
+
+  const handleUpvote = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (vote === 'up') {
+        setVote(null);
+        onVoteChange(tool.id, tool.votes - 1);
+    } else if (vote === 'down') {
+        setVote('up');
+        onVoteChange(tool.id, tool.votes + 2);
+    } else {
+        setVote('up');
+        onVoteChange(tool.id, tool.votes + 1);
+    }
+  };
+
+  const handleDownvote = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (vote === 'down') {
+        setVote(null);
+        onVoteChange(tool.id, tool.votes + 1);
+    } else if (vote === 'up') {
+        setVote('down');
+        onVoteChange(tool.id, tool.votes - 2);
+    } else {
+        setVote('down');
+        onVoteChange(tool.id, tool.votes - 1);
+    }
+  };
     
   return (
     <Dialog>
@@ -47,10 +80,15 @@ export function ToolCard({ tool }: ToolCardProps) {
                         ))}
                     </div>
                 </CardContent>
-                <CardFooter className="flex justify-between text-xs text-muted-foreground">
+                <CardFooter className="flex justify-between items-center text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 text-amber-400" />
-                        <span>{tool.popularity}</span>
+                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleUpvote}>
+                            <ArrowBigUp className={cn("h-4 w-4", vote === 'up' && 'fill-primary text-primary')} />
+                        </Button>
+                        <span className="font-bold text-sm text-foreground">{tool.votes}</span>
+                         <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleDownvote}>
+                            <ArrowBigDown className={cn("h-4 w-4", vote === 'down' && 'fill-primary text-primary')} />
+                        </Button>
                     </div>
                     <span>{formatDistanceToNow(tool.submittedAt, { addSuffix: true })}</span>
                 </CardFooter>
@@ -77,7 +115,7 @@ export function ToolCard({ tool }: ToolCardProps) {
                 <div className="grid grid-cols-2 gap-4 text-sm pt-4">
                     <div className="flex items-center gap-2 text-muted-foreground"><Coins className="h-4 w-4 text-primary" /> Price: <span className="font-semibold text-foreground">{tool.price}</span></div>
                     <div className="flex items-center gap-2 text-muted-foreground"><PersonStanding className="h-4 w-4 text-primary" /> Ease of Use: <span className="font-semibold text-foreground">{tool.easeOfUse}</span></div>
-                    <div className="flex items-center gap-2 text-muted-foreground"><Star className="h-4 w-4 text-primary" /> Popularity: <span className="font-semibold text-foreground">{tool.popularity}</span></div>
+                    <div className="flex items-center gap-2 text-muted-foreground"><Star className="h-4 w-4 text-primary" /> Votes: <span className="font-semibold text-foreground">{tool.votes}</span></div>
                     <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="h-4 w-4 text-primary" /> Submitted: <span className="font-semibold text-foreground">{formatDistanceToNow(tool.submittedAt, { addSuffix: true })}</span></div>
                 </div>
                 {tool.submittedBy && tool.justification && (

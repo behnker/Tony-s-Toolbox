@@ -39,7 +39,7 @@ export async function submitTool(
       submittedBy: validation.data.submittedBy,
       justification: validation.data.justification,
       submittedAt: new Date(),
-      popularity: Math.floor(Math.random() * 50), // Start with random popularity
+      votes: Math.floor(Math.random() * 50), // Start with random votes
     };
 
     return { success: true, data: newTool };

@@ -12,7 +12,7 @@ export const initialTools: Tool[] = [
     submittedBy: 'AI Enthusiast',
     justification: 'The best way to build production-ready AI apps.',
     submittedAt: new Date('2024-05-10T10:00:00Z'),
-    popularity: 95,
+    votes: 95,
   },
   {
     id: '2',
@@ -25,7 +25,7 @@ export const initialTools: Tool[] = [
     submittedBy: 'CreativePro',
     justification: 'Incredibly easy to use and produces high-quality images.',
     submittedAt: new Date('2024-05-20T14:30:00Z'),
-    popularity: 88,
+    votes: 88,
   },
   {
     id: '3',
@@ -38,7 +38,7 @@ export const initialTools: Tool[] = [
     submittedBy: 'PodcasterPete',
     justification: 'A game-changer for finding background music for my shows.',
     submittedAt: new Date('2024-05-18T09:00:00Z'),
-    popularity: 76,
+    votes: 76,
   },
   {
     id: '4',
@@ -51,7 +51,7 @@ export const initialTools: Tool[] = [
     submittedBy: 'ProductivityHackr',
     justification: 'Seamlessly blends into my existing workflow and saves me hours.',
     submittedAt: new Date('2024-04-25T11:00:00Z'),
-    popularity: 92,
+    votes: 92,
   },
     {
     id: '5',
@@ -64,7 +64,7 @@ export const initialTools: Tool[] = [
     submittedBy: 'VideoVince',
     justification: 'The future of video editing. The AI tools are incredibly powerful.',
     submittedAt: new Date('2024-05-21T12:00:00Z'),
-    popularity: 85,
+    votes: 85,
   },
   {
     id: '6',
@@ -77,7 +77,7 @@ export const initialTools: Tool[] = [
     submittedBy: 'CorporateTrainer',
     justification: 'Perfect for creating training materials quickly and consistently.',
     submittedAt: new Date('2024-05-15T16:45:00Z'),
-    popularity: 70,
+    votes: 70,
   },
   {
     id: '7',
@@ -90,7 +90,7 @@ export const initialTools: Tool[] = [
     submittedBy: 'MarketerMary',
     justification: 'Helps overcome writer\'s block and generates great ideas for campaigns.',
     submittedAt: new Date('2024-05-01T08:20:00Z'),
-    popularity: 89,
+    votes: 89,
   },
   {
     id: '8',
@@ -103,6 +103,6 @@ export const initialTools: Tool[] = [
     submittedBy: 'OpenSourceDev',
     justification: 'A very capable open-source model that can be fine-tuned for specific tasks.',
     submittedAt: new Date('2024-04-18T18:00:00Z'),
-    popularity: 98,
+    votes: 98,
   },
 ];

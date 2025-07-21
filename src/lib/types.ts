@@ -12,5 +12,5 @@ export type Tool = {
   submittedBy?: string;
   justification?: string;
   submittedAt: Date;
-  popularity: number;
+  votes: number;
 };
