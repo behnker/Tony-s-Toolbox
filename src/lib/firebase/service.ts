@@ -10,8 +10,8 @@ export async function addTool(tool: Omit<Tool, 'id' | 'submittedAt'>): Promise<T
         submittedAt: serverTimestamp(),
     });
     
-    // We get a client-side estimate of the timestamp for optimistic updates.
-    // The real server-side timestamp will be fetched on the next page load.
+    // The serverTimestamp() will be null on the client until it's processed by the server.
+    // We return a client-side date for optimistic updates. The real date will be fetched on reload.
     return { ...tool, id: docRef.id, submittedAt: new Date() };
 }
 
@@ -21,33 +21,35 @@ export async function getTools(): Promise<Tool[]> {
     
     let toolsSnapshot = await getDocs(q);
     
-    // If the collection is empty, seed it with initial data.
     if (toolsSnapshot.empty) {
         console.log("No tools found, seeding initial data.");
         const batch = writeBatch(db);
-        for (const tool of initialTools) {
+        initialTools.forEach((tool) => {
             const newDocRef = doc(toolsCollection);
             const seedData = {
                 ...tool,
-                // Convert string date from data file to Firestore Timestamp
                 submittedAt: Timestamp.fromDate(new Date(tool.submittedAt)),
             };
             batch.set(newDocRef, seedData);
-        }
-        // Commit the batch to write all tools to the database.
+        });
         await batch.commit();
 
-        // After seeding, fetch the data again to ensure we get the fresh data from the DB.
         toolsSnapshot = await getDocs(q);
     }
 
     const toolsList = toolsSnapshot.docs.map(doc => {
         const data = doc.data();
+        // This is the critical fix:
+        // The `submittedAt` field could be a Firestore Timestamp or a JS Date (from optimistic update).
+        // We ensure it's always a JS Date before returning.
+        const submittedAt = data.submittedAt instanceof Timestamp 
+            ? data.submittedAt.toDate() 
+            : data.submittedAt;
+
         return {
             ...data,
             id: doc.id,
-            // Convert Firestore Timestamp to JavaScript Date object
-            submittedAt: (data.submittedAt as Timestamp).toDate(),
+            submittedAt: submittedAt,
         } as Tool;
     });
 
@@ -65,6 +67,5 @@ export async function updateToolVotes(toolId: string, upvoteIncrement: number, d
     updateData.downvotes = increment(downvoteIncrement);
   }
 
-  // No need to await this for optimistic updates, but you could if you wanted to guarantee it finishes.
   await updateDoc(toolRef, updateData);
 }
