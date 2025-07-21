@@ -31,6 +31,17 @@ type ToolCardProps = {
   onVoteChange: (toolId: string, type: 'up' | 'down', newUpvotes: number, newDownvotes: number) => void;
 };
 
+function getImageHint(categories: string[]): string {
+    if (categories.includes('developer-tools')) return 'code abstract';
+    if (categories.includes('image-generation')) return 'abstract art';
+    if (categories.includes('music-generation')) return 'sound waves';
+    if (categories.includes('video-generation')) return 'video reel';
+    if (categories.includes('productivity')) return 'workspace desk';
+    if (categories.includes('copywriting')) return 'writing text';
+    if (categories.includes('llm')) return 'neural network';
+    return 'abstract background';
+}
+
 export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
   const [vote, setVote] = React.useState<'up' | 'down' | null>(null);
 
@@ -83,7 +94,7 @@ export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
                             alt={tool.name} 
                             fill
                             className="object-cover"
-                            data-ai-hint="abstract background"
+                            data-ai-hint={getImageHint(tool.categories)}
                         />
                     </div>
                     <CardTitle className="flex justify-between items-start font-headline">
