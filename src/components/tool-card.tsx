@@ -182,3 +182,5 @@ export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
     </Dialog>
   );
 }
+
+    
