@@ -19,7 +19,7 @@ export type ExtractMetadataFromUrlInput = z.infer<typeof ExtractMetadataFromUrlI
 const ExtractMetadataFromUrlOutputSchema = z.object({
   title: z.string().describe('The title of the web page.'),
   description: z.string().describe('A short description of the web page.'),
-  categories: z.array(z.string()).describe('Categories the tool belongs to.'),
+  categories: z.array(z.string()).describe('An array of relevant categories for the tool.'),
 });
 export type ExtractMetadataFromUrlOutput = z.infer<typeof ExtractMetadataFromUrlOutputSchema>;
 
@@ -31,13 +31,16 @@ const extractMetadataPrompt = ai.definePrompt({
   name: 'extractMetadataPrompt',
   input: {schema: ExtractMetadataFromUrlInputSchema},
   output: {schema: ExtractMetadataFromUrlOutputSchema},
-  prompt: `You are an expert in extracting metadata from web pages.
+  prompt: `You are an expert in extracting metadata from web pages for an AI tool directory.
 
-  Given a URL, you will extract the title, description, and categories that the tool belongs to.
+  Given a URL, you will extract the following information:
+  - The title of the tool or web page.
+  - A short, clear description of the tool.
+  - An array of categories that the tool belongs to.
+
+  The categories should be relevant to AI tools, like "image-generation", "video-generation", "developer-tools", "productivity", "copywriting", "llm", etc.
 
   URL: {{{url}}}
-  Categories should be related to AI tools, such as "image generation", "text summarization", "SEO", etc.
-  Return an array of strings, and write a short description for the tool.
   `,
 });
 

@@ -19,9 +19,10 @@ type FormValues = z.infer<typeof formSchema>;
 
 async function getWebsiteContent(url: string): Promise<string> {
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
     if (!response.ok) {
-      throw new Error(`Failed to fetch website content: ${response.statusText}`);
+      console.error(`Failed to fetch website content: ${response.status} ${response.statusText}`);
+      return "";
     }
     const text = await response.text();
     // A simple way to clean up HTML and get text content.
@@ -57,14 +58,14 @@ export async function submitTool(
     // If description is missing or too short, generate one.
     if (!description || description.split(' ').length < 5) {
       const websiteContent = await getWebsiteContent(url);
-      if (websiteContent) {
+      if (websiteContent && websiteContent.length > 100) { // Check for meaningful content
         const generated = await generateShortDescription({ url, websiteContent });
         description = generated.shortDescription;
       }
     }
     
     if (!metadata.title || !description) {
-        return { success: false, error: "Could not extract or generate sufficient metadata. Please try a different URL."}
+        return { success: false, error: "Could not extract or generate sufficient metadata. The URL might be blocking our AI or the page may lack clear information. Please try a different URL."}
     }
 
     const newToolData: Omit<Tool, 'id'> = {
@@ -87,10 +88,10 @@ export async function submitTool(
     return { success: true, data: savedTool };
   } catch (error) {
     console.error("Error submitting tool:", error);
-    if (error instanceof Error && (error.message.includes('deadline') || error.message.includes('timeout'))) {
-        return { success: false, error: 'The request timed out. The URL might be slow, inaccessible, or blocking automated requests.' };
+    if (error instanceof Error && (error.message.includes('deadline') || error.message.includes('timeout') || error.message.includes('blocked'))) {
+        return { success: false, error: 'The request timed out or was blocked. The URL might be slow, inaccessible, or preventing automated requests.' };
     }
-    return { success: false, error: "Failed to extract metadata or image from the URL. Please ensure it's a valid and accessible page." };
+    return { success: false, error: "Failed to process the URL. Please ensure it's a valid and accessible page." };
   }
 }
 
