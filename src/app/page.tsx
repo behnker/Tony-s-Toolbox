@@ -8,6 +8,7 @@ import { Filters, type FilterState, type SortState } from "@/components/filters-
 import type { Tool } from "@/lib/types";
 import { initialTools } from "@/lib/data";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 
 export default function Home() {
   const [isMounted, setIsMounted] = useState(false);
@@ -117,13 +118,26 @@ export default function Home() {
         ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {Array.from({ length: 8 }).map((_, i) => (
-                    <div key={i} className="flex flex-col space-y-3">
-                        <Skeleton className="h-[125px] w-full rounded-xl" />
-                        <div className="space-y-2">
-                            <Skeleton className="h-4 w-[250px]" />
-                            <Skeleton className="h-4 w-[200px]" />
-                        </div>
-                    </div>
+                    <Card key={i}>
+                        <CardHeader>
+                            <Skeleton className="aspect-video relative mb-4" />
+                            <div className="space-y-2">
+                                <Skeleton className="h-6 w-3/4" />
+                                <Skeleton className="h-4 w-full" />
+                                <Skeleton className="h-4 w-2/3" />
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex gap-2">
+                                <Skeleton className="h-6 w-20" />
+                                <Skeleton className="h-6 w-24" />
+                            </div>
+                        </CardContent>
+                        <CardFooter className="flex justify-between">
+                            <Skeleton className="h-6 w-16" />
+                            <Skeleton className="h-4 w-24" />
+                        </CardFooter>
+                    </Card>
                 ))}
             </div>
         )}

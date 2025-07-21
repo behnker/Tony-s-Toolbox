@@ -14,6 +14,7 @@ export const initialTools: Tool[] = [
     submittedAt: new Date('2024-05-10T10:00:00Z'),
     upvotes: 100,
     downvotes: 5,
+    imageUrl: 'https://placehold.co/600x400.png',
   },
   {
     id: '2',
@@ -28,6 +29,7 @@ export const initialTools: Tool[] = [
     submittedAt: new Date('2024-05-20T14:30:00Z'),
     upvotes: 90,
     downvotes: 2,
+    imageUrl: 'https://placehold.co/600x400.png',
   },
   {
     id: '3',
@@ -56,6 +58,7 @@ export const initialTools: Tool[] = [
     submittedAt: new Date('2024-04-25T11:00:00Z'),
     upvotes: 98,
     downvotes: 6,
+    imageUrl: 'https://placehold.co/600x400.png',
   },
     {
     id: '5',
@@ -84,6 +87,7 @@ export const initialTools: Tool[] = [
     submittedAt: new Date('2024-05-15T16:45:00Z'),
     upvotes: 75,
     downvotes: 5,
+    imageUrl: 'https://placehold.co/600x400.png',
   },
   {
     id: '7',

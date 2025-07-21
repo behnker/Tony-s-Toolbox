@@ -28,11 +28,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { submitTool } from "@/app/actions";
 import type { Tool } from "@/lib/types";
 import { Loader2 } from "lucide-react";
+import { storage } from "@/lib/firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
 
 const formSchema = z.object({
   url: z.string().url({ message: "Please enter a valid URL." }),
   submittedBy: z.string().min(2, { message: "Name must be at least 2 characters." }),
   justification: z.string().min(10, { message: "Justification must be at least 10 characters." }),
+  image: z.custom<FileList>().optional(),
 });
 
 type SubmitToolDialogProps = {
@@ -54,7 +58,28 @@ export function SubmitToolDialog({ children, onToolSubmitted }: SubmitToolDialog
   const { isSubmitting } = form.formState;
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const result = await submitTool(values);
+    let imageUrl: string | undefined = undefined;
+
+    // Handle file upload
+    if (values.image && values.image.length > 0) {
+        const file = values.image[0];
+        const storageRef = ref(storage, `tool-images/${crypto.randomUUID()}-${file.name}`);
+        try {
+            const snapshot = await uploadBytes(storageRef, file);
+            imageUrl = await getDownloadURL(snapshot.ref);
+        } catch (error) {
+            console.error("Error uploading image:", error);
+            toast({
+                variant: "destructive",
+                title: "Image Upload Failed",
+                description: "Could not upload the image. Please try again.",
+            });
+            return; // Stop submission if image upload fails
+        }
+    }
+
+
+    const result = await submitTool({ ...values, imageUrl });
 
     if (result.success && result.data) {
       toast({
@@ -72,6 +97,7 @@ export function SubmitToolDialog({ children, onToolSubmitted }: SubmitToolDialog
       });
     }
   }
+  const imageRef = form.register("image");
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -123,6 +149,19 @@ export function SubmitToolDialog({ children, onToolSubmitted }: SubmitToolDialog
                       className="resize-none"
                       {...field}
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tool Image (Optional)</FormLabel>
+                  <FormControl>
+                    <Input type="file" accept="image/*" {...imageRef} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

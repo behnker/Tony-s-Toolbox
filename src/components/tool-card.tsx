@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from 'react';
+import Image from 'next/image';
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -23,6 +24,7 @@ import { ArrowUpRight, Calendar, Coins, PersonStanding, Sparkles, Star, ArrowBig
 import { formatDistanceToNow } from "date-fns";
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
+import { Skeleton } from './ui/skeleton';
 
 type ToolCardProps = {
   tool: Tool;
@@ -73,8 +75,17 @@ export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
   return (
     <Dialog>
         <DialogTrigger asChild>
-            <Card className="flex flex-col h-full cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-primary">
+            <Card className="flex flex-col h-full cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-primary overflow-hidden">
                 <CardHeader>
+                    <div className="aspect-video relative mb-4">
+                        <Image 
+                            src={tool.imageUrl || 'https://placehold.co/600x400.png'} 
+                            alt={tool.name} 
+                            fill
+                            className="object-cover"
+                            data-ai-hint="abstract background"
+                        />
+                    </div>
                     <CardTitle className="flex justify-between items-start font-headline">
                         <span className="truncate">{tool.name}</span>
                         <ArrowUpRight className="h-5 w-5 text-muted-foreground shrink-0" />
@@ -90,7 +101,7 @@ export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
                         ))}
                     </div>
                 </CardContent>
-                <CardFooter className="flex justify-between items-center text-xs text-muted-foreground">
+                <CardFooter className="flex justify-between items-center text-xs text-muted-foreground mt-auto pt-4">
                     <div className="flex items-center gap-1">
                         <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleUpvote}>
                             <ArrowBigUp className={cn("h-4 w-4", vote === 'up' && 'fill-primary text-primary')} />

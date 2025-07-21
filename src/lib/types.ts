@@ -14,4 +14,5 @@ export type Tool = {
   submittedAt: Date;
   upvotes: number;
   downvotes: number;
+  imageUrl?: string;
 };

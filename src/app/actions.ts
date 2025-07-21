@@ -8,6 +8,7 @@ const formSchema = z.object({
   url: z.string().url(),
   submittedBy: z.string(),
   justification: z.string(),
+  imageUrl: z.string().url().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -33,7 +34,6 @@ export async function submitTool(
       name: metadata.title,
       description: metadata.description,
       categories: metadata.categories.length > 0 ? metadata.categories : ['general'],
-      // Defaulting some values as they are not extracted
       price: 'Freemium', 
       easeOfUse: 'Beginner', 
       submittedBy: validation.data.submittedBy,
@@ -41,12 +41,12 @@ export async function submitTool(
       submittedAt: new Date(),
       upvotes: 1,
       downvotes: 0,
+      imageUrl: validation.data.imageUrl,
     };
 
     return { success: true, data: newTool };
   } catch (error) {
     console.error("Error submitting tool:", error);
-    // This could be a more user-friendly error message
     if (error instanceof Error && error.message.includes('deadline')) {
         return { success: false, error: 'The request timed out. The URL might be slow or inaccessible.' };
     }
