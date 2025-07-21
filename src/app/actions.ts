@@ -87,8 +87,8 @@ export async function submitTool(
     return { success: true, data: savedTool };
   } catch (error) {
     console.error("Error submitting tool:", error);
-    if (error instanceof Error && error.message.includes('deadline')) {
-        return { success: false, error: 'The request timed out. The URL might be slow or inaccessible.' };
+    if (error instanceof Error && (error.message.includes('deadline') || error.message.includes('timeout'))) {
+        return { success: false, error: 'The request timed out. The URL might be slow, inaccessible, or blocking automated requests.' };
     }
     return { success: false, error: "Failed to extract metadata or image from the URL. Please ensure it's a valid and accessible page." };
   }
