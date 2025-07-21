@@ -1,9 +1,11 @@
+
 "use server";
 
 import { z } from "zod";
 import { extractMetadataFromUrl } from "@/ai/flows/extract-metadata";
 import { extractImageFromUrl } from "@/ai/flows/extract-image-from-url";
 import { generateShortDescription } from "@/ai/flows/generate-short-description";
+import { addTool } from "@/lib/firebase/service";
 import type { Tool } from "@/lib/types";
 
 const formSchema = z.object({
@@ -64,8 +66,7 @@ export async function submitTool(
         return { success: false, error: "Could not extract or generate sufficient metadata. Please try a different URL."}
     }
 
-    const newTool: Tool = {
-      id: crypto.randomUUID(),
+    const newToolData: Omit<Tool, 'id'> = {
       url: validation.data.url,
       name: metadata.title,
       description: description,
@@ -80,7 +81,9 @@ export async function submitTool(
       imageUrl: image.imageUrl,
     };
 
-    return { success: true, data: newTool };
+    const savedTool = await addTool(newToolData);
+
+    return { success: true, data: savedTool };
   } catch (error) {
     console.error("Error submitting tool:", error);
     if (error instanceof Error && error.message.includes('deadline')) {

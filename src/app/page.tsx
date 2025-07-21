@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -6,13 +7,13 @@ import { AppHeader } from "@/components/header";
 import { ToolCard } from "@/components/tool-card";
 import { Filters, type FilterState, type SortState } from "@/components/filters-and-sorters";
 import type { Tool } from "@/lib/types";
-import { initialTools } from "@/lib/data";
+import { getTools } from "@/lib/firebase/service";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 
 export default function Home() {
-  const [isMounted, setIsMounted] = useState(false);
-  const [tools, setTools] = useState<Tool[]>(initialTools);
+  const [loading, setLoading] = useState(true);
+  const [tools, setTools] = useState<Tool[]>([]);
   const [filters, setFilters] = useState<FilterState>({
     search: "",
     category: "all",
@@ -23,7 +24,17 @@ export default function Home() {
   const [sortBy, setSortBy] = useState<SortState>("most-up-votes");
 
   useEffect(() => {
-    setIsMounted(true);
+    async function fetchTools() {
+      try {
+        const fetchedTools = await getTools();
+        setTools(fetchedTools);
+      } catch (error) {
+        console.error("Error fetching tools:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchTools();
   }, []);
 
   const handleToolSubmitted = (newTool: Tool) => {
@@ -31,6 +42,7 @@ export default function Home() {
   };
   
   const handleVoteChange = (toolId: string, type: 'up' | 'down', newUpvotes: number, newDownvotes: number) => {
+    // This part will need to be updated to write to Firestore in a future step
     setTools(prevTools =>
       prevTools.map(tool =>
         tool.id === toolId ? { ...tool, upvotes: newUpvotes, downvotes: newDownvotes } : tool
@@ -63,6 +75,7 @@ export default function Home() {
         return b.downvotes - a.downvotes;
       }
       if (sortBy === "newest") {
+        // Firestore Timestamps can be compared directly
         return b.submittedAt.getTime() - a.submittedAt.getTime();
       }
       return 0;
@@ -109,13 +122,7 @@ export default function Home() {
           submitters={allSubmitters}
         />
 
-        {isMounted ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredAndSortedTools.map((tool) => (
-                    <ToolCard key={tool.id} tool={tool} onVoteChange={handleVoteChange} />
-                ))}
-            </div>
-        ) : (
+        {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {Array.from({ length: 8 }).map((_, i) => (
                     <Card key={i}>
@@ -138,6 +145,12 @@ export default function Home() {
                             <Skeleton className="h-4 w-24" />
                         </CardFooter>
                     </Card>
+                ))}
+            </div>
+        ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredAndSortedTools.map((tool) => (
+                    <ToolCard key={tool.id} tool={tool} onVoteChange={handleVoteChange} />
                 ))}
             </div>
         )}
