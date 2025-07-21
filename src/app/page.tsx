@@ -41,8 +41,7 @@ export default function Home() {
     setTools((prevTools) => [newTool, ...prevTools]);
   };
   
-  const handleVoteChange = (toolId: string, type: 'up' | 'down', newUpvotes: number, newDownvotes: number) => {
-    // This part will need to be updated to write to Firestore in a future step
+  const handleVoteChange = (toolId: string, newUpvotes: number, newDownvotes: number) => {
     setTools(prevTools =>
       prevTools.map(tool =>
         tool.id === toolId ? { ...tool, upvotes: newUpvotes, downvotes: newDownvotes } : tool
@@ -69,14 +68,14 @@ export default function Home() {
 
     return filtered.sort((a, b) => {
       if (sortBy === "most-up-votes") {
-        return b.upvotes - a.upvotes;
+        return (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes);
       }
-      if (sortBy === "most-down-votes") {
-        return b.downvotes - a.downvotes;
+      if (sortBy === "least-up-votes") {
+        return (a.upvotes - a.downvotes) - (b.upvotes - b.downvotes);
       }
       if (sortBy === "newest") {
         // Firestore Timestamps can be compared directly
-        return b.submittedAt.getTime() - a.submittedAt.getTime();
+        return new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime();
       }
       return 0;
     });

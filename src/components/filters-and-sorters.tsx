@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -21,7 +22,7 @@ export type FilterState = {
   submittedBy: string;
 };
 
-export type SortState = "most-up-votes" | "most-down-votes" | "newest";
+export type SortState = "most-up-votes" | "least-up-votes" | "newest";
 
 type FiltersProps = {
   filters: FilterState;
@@ -162,8 +163,8 @@ export function Filters({
                 <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="most-up-votes">Most Up Votes</SelectItem>
-                  <SelectItem value="most-down-votes">Most Down Votes</SelectItem>
+                  <SelectItem value="most-up-votes">Most Popular</SelectItem>
+                  <SelectItem value="least-up-votes">Least Popular</SelectItem>
                   <SelectItem value="newest">Newest</SelectItem>
                 </SelectContent>
             </Select>

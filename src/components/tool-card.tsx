@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from 'react';
@@ -24,11 +25,12 @@ import { ArrowUpRight, Calendar, Coins, PersonStanding, Sparkles, Star, ArrowBig
 import { formatDistanceToNow } from "date-fns";
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
-import { Skeleton } from './ui/skeleton';
+import { updateVote } from '@/app/actions';
+
 
 type ToolCardProps = {
   tool: Tool;
-  onVoteChange: (toolId: string, type: 'up' | 'down', newUpvotes: number, newDownvotes: number) => void;
+  onVoteChange: (toolId: string, newUpvotes: number, newDownvotes: number) => void;
 };
 
 function getImageHint(categories: string[]): string {
@@ -45,42 +47,54 @@ function getImageHint(categories: string[]): string {
 export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
   const [vote, setVote] = React.useState<'up' | 'down' | null>(null);
 
-  const handleUpvote = (e: React.MouseEvent) => {
+  const handleUpvote = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    let newUpvotes = tool.upvotes;
-    let newDownvotes = tool.downvotes;
+    
+    let upvoteIncrement = 0;
+    let downvoteIncrement = 0;
 
     if (vote === 'up') {
         setVote(null);
-        newUpvotes--;
+        upvoteIncrement = -1;
     } else if (vote === 'down') {
         setVote('up');
-        newUpvotes++;
-        newDownvotes--;
+        upvoteIncrement = 1;
+        downvoteIncrement = -1;
     } else {
         setVote('up');
-        newUpvotes++;
+        upvoteIncrement = 1;
     }
-    onVoteChange(tool.id, 'up', newUpvotes, newDownvotes);
+    
+    // Optimistic UI update
+    onVoteChange(tool.id, tool.upvotes + upvoteIncrement, tool.downvotes + downvoteIncrement);
+    
+    // Call server action
+    await updateVote({ toolId: tool.id, upvoteIncrement, downvoteIncrement });
   };
 
-  const handleDownvote = (e: React.MouseEvent) => {
+  const handleDownvote = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    let newUpvotes = tool.upvotes;
-    let newDownvotes = tool.downvotes;
+
+    let upvoteIncrement = 0;
+    let downvoteIncrement = 0;
 
     if (vote === 'down') {
         setVote(null);
-        newDownvotes--;
+        downvoteIncrement = -1;
     } else if (vote === 'up') {
         setVote('down');
-        newDownvotes++;
-        newUpvotes--;
+        downvoteIncrement = 1;
+        upvoteIncrement = -1;
     } else {
         setVote('down');
-        newDownvotes++;
+        downvoteIncrement = 1;
     }
-    onVoteChange(tool.id, 'down', newUpvotes, newDownvotes);
+    
+    // Optimistic UI update
+    onVoteChange(tool.id, tool.upvotes + upvoteIncrement, tool.downvotes + downvoteIncrement);
+
+    // Call server action
+    await updateVote({ toolId: tool.id, upvoteIncrement, downvoteIncrement });
   };
     
   return (
@@ -122,7 +136,7 @@ export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
                             <ArrowBigDown className={cn("h-4 w-4", vote === 'down' && 'fill-primary text-primary')} />
                         </Button>
                     </div>
-                    <span>{formatDistanceToNow(tool.submittedAt, { addSuffix: true })}</span>
+                    <span>{formatDistanceToNow(new Date(tool.submittedAt), { addSuffix: true })}</span>
                 </CardFooter>
             </Card>
         </DialogTrigger>
@@ -149,7 +163,7 @@ export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
                     <div className="flex items-center gap-2 text-muted-foreground"><PersonStanding className="h-4 w-4 text-primary" /> Ease of Use: <span className="font-semibold text-foreground">{tool.easeOfUse}</span></div>
                     <div className="flex items-center gap-2 text-muted-foreground"><ArrowBigUp className="h-4 w-4 text-primary" /> Upvotes: <span className="font-semibold text-foreground">{tool.upvotes}</span></div>
                     <div className="flex items-center gap-2 text-muted-foreground"><ArrowBigDown className="h-4 w-4 text-primary" /> Downvotes: <span className="font-semibold text-foreground">{tool.downvotes}</span></div>
-                    <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="h-4 w-4 text-primary" /> Submitted: <span className="font-semibold text-foreground">{formatDistanceToNow(tool.submittedAt, { addSuffix: true })}</span></div>
+                    <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="h-4 w-4 text-primary" /> Submitted: <span className="font-semibold text-foreground">{formatDistanceToNow(new Date(tool.submittedAt), { addSuffix: true })}</span></div>
                 </div>
                 {tool.submittedBy && tool.justification && (
                     <div className="pt-4 border-t">

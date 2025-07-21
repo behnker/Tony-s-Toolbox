@@ -5,8 +5,9 @@ import { z } from "zod";
 import { extractMetadataFromUrl } from "@/ai/flows/extract-metadata";
 import { extractImageFromUrl } from "@/ai/flows/extract-image-from-url";
 import { generateShortDescription } from "@/ai/flows/generate-short-description";
-import { addTool } from "@/lib/firebase/service";
+import { addTool, updateToolVotes } from "@/lib/firebase/service";
 import type { Tool } from "@/lib/types";
+import { revalidatePath } from "next/cache";
 
 const formSchema = z.object({
   url: z.string().url(),
@@ -82,7 +83,7 @@ export async function submitTool(
     };
 
     const savedTool = await addTool(newToolData);
-
+    revalidatePath('/');
     return { success: true, data: savedTool };
   } catch (error) {
     console.error("Error submitting tool:", error);
@@ -91,4 +92,16 @@ export async function submitTool(
     }
     return { success: false, error: "Failed to extract metadata or image from the URL. Please ensure it's a valid and accessible page." };
   }
+}
+
+export async function updateVote({toolId, upvoteIncrement, downvoteIncrement}: {toolId: string, upvoteIncrement: number, downvoteIncrement: number}) {
+    try {
+        await updateToolVotes(toolId, upvoteIncrement, downvoteIncrement);
+        revalidatePath('/');
+    } catch (error) {
+        console.error("Error updating vote:", error);
+        // Optionally, return an error to the client
+        return { success: false, error: "Failed to update vote." };
+    }
+    return { success: true };
 }
