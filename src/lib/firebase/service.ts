@@ -1,6 +1,5 @@
-
 import { db } from "./client";
-import { collection, addDoc, getDocs, Timestamp, orderBy, query, doc, updateDoc, increment, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, getDocs, Timestamp, orderBy, query, doc, updateDoc, increment, serverTimestamp, writeBatch } from "firebase/firestore";
 import type { Tool } from "@/lib/types";
 import { initialTools } from "@/lib/data";
 
@@ -10,8 +9,6 @@ export async function addTool(tool: Omit<Tool, 'id' | 'submittedAt'>): Promise<T
         submittedAt: serverTimestamp(),
     });
     
-    // To return the full tool object, we would need to get the doc again to get the server-generated timestamp.
-    // For simplicity, we'll return the tool with a client-side date, but the DB has the accurate server time.
     return { ...tool, id: docRef.id, submittedAt: new Date() };
 }
 
@@ -21,23 +18,19 @@ export async function getTools(): Promise<Tool[]> {
     
     let toolsSnapshot = await getDocs(q);
     
-    // Seed data if the collection is empty
     if (toolsSnapshot.empty) {
         console.log("No tools found, seeding initial data.");
-        const batch = [];
+        const batch = writeBatch(db);
         for (const tool of initialTools) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { id, ...toolData } = tool;
-            // Convert string date to Firestore Timestamp for seeding
+            const newDocRef = doc(toolsCollection);
             const seedData = {
-                ...toolData,
+                ...tool,
                 submittedAt: Timestamp.fromDate(new Date(tool.submittedAt)),
             };
-            batch.push(addDoc(toolsCollection, seedData));
+            batch.set(newDocRef, seedData);
         }
-        await Promise.all(batch);
+        await batch.commit();
 
-        // After seeding, fetch the data again to ensure we have IDs and correct timestamps
         toolsSnapshot = await getDocs(q);
     }
 
@@ -52,7 +45,6 @@ export async function getTools(): Promise<Tool[]> {
 
     return toolsList;
 }
-
 
 export async function updateToolVotes(toolId: string, upvoteIncrement: number, downvoteIncrement: number) {
   const toolRef = doc(db, "tools", toolId);

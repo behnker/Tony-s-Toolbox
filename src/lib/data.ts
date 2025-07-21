@@ -1,8 +1,7 @@
 import type { Tool } from './types';
 
-export const initialTools: Omit<Tool, 'submittedAt'> & { submittedAt: string }[] = [
+export const initialTools: Omit<Tool, 'submittedAt' | 'id'> & { submittedAt: string }[] = [
   {
-    id: '1',
     name: 'GenKit AI',
     description: 'A powerful framework for building, deploying, and monitoring AI-powered features with Node.js.',
     url: 'https://firebase.google.com/docs/genkit',
@@ -17,7 +16,6 @@ export const initialTools: Omit<Tool, 'submittedAt'> & { submittedAt: string }[]
     imageUrl: 'https://placehold.co/600x400.png',
   },
   {
-    id: '2',
     name: 'ImageFX',
     description: 'Generate stunning images from text descriptions with Google\'s advanced image generation model.',
     url: 'https://aistudio.google.com/app/imagefx',
@@ -32,7 +30,6 @@ export const initialTools: Omit<Tool, 'submittedAt'> & { submittedAt: string }[]
     imageUrl: 'https://placehold.co/600x400.png',
   },
   {
-    id: '3',
     name: 'MusicFX',
     description: 'Create royalty-free music and sound effects using text prompts. Perfect for content creators.',
     url: 'https://aistudio.google.com/app/musicfx',
@@ -47,7 +44,6 @@ export const initialTools: Omit<Tool, 'submittedAt'> & { submittedAt: string }[]
     imageUrl: 'https://placehold.co/600x400.png',
   },
   {
-    id: '4',
     name: 'Notion AI',
     description: 'Integrates AI assistance directly into your Notion workspaces for summarizing, writing, and brainstorming.',
     url: 'https://www.notion.so/product/ai',
@@ -62,7 +58,6 @@ export const initialTools: Omit<Tool, 'submittedAt'> & { submittedAt: string }[]
     imageUrl: 'https://placehold.co/600x400.png',
   },
     {
-    id: '5',
     name: 'RunwayML',
     description: 'An advanced AI video editor with features like text-to-video, inpainting, and motion tracking.',
     url: 'https://runwayml.com/',
@@ -77,7 +72,6 @@ export const initialTools: Omit<Tool, 'submittedAt'> & { submittedAt: string }[]
     imageUrl: 'https://placehold.co/600x400.png',
   },
   {
-    id: '6',
     name: 'Synthesia',
     description: 'Create professional videos with AI avatars and voiceovers in minutes, without cameras or microphones.',
     url: 'https://www.synthesia.io/',
@@ -92,7 +86,6 @@ export const initialTools: Omit<Tool, 'submittedAt'> & { submittedAt: string }[]
     imageUrl: 'https://placehold.co/600x400.png',
   },
   {
-    id: '7',
     name: 'Copy.ai',
     description: 'AI-powered copywriter that generates high-quality marketing copy, from blog posts to social media updates.',
     url: 'https://www.copy.ai/',
@@ -107,7 +100,6 @@ export const initialTools: Omit<Tool, 'submittedAt'> & { submittedAt: string }[]
     imageUrl: 'https://placehold.co/600x400.png',
   },
   {
-    id: '8',
     name: 'Llama 3',
     description: 'Meta\'s next-generation, open-source large language model, available for research and commercial use.',
     url: 'https://ai.meta.com/llama/',
