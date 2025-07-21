@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -44,8 +45,13 @@ type SubmitToolDialogProps = {
   onToolSubmitted: (tool: Tool) => void;
 };
 
+type SubmissionStatus = "idle" | "uploading" | "submitting";
+
+
 export function SubmitToolDialog({ children, onToolSubmitted }: SubmitToolDialogProps) {
   const [open, setOpen] = React.useState(false);
+  const [submissionStatus, setSubmissionStatus] = React.useState<SubmissionStatus>("idle");
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,13 +61,14 @@ export function SubmitToolDialog({ children, onToolSubmitted }: SubmitToolDialog
     },
   });
 
-  const { isSubmitting } = form.formState;
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     let imageUrl: string | undefined = undefined;
+    setSubmissionStatus("idle");
 
     // Handle file upload
     if (values.image && values.image.length > 0) {
+        setSubmissionStatus("uploading");
         const file = values.image[0];
         const storageRef = ref(storage, `tool-images/${crypto.randomUUID()}-${file.name}`);
         try {
@@ -74,11 +81,12 @@ export function SubmitToolDialog({ children, onToolSubmitted }: SubmitToolDialog
                 title: "Image Upload Failed",
                 description: "Could not upload the image. Please try again.",
             });
-            return; // Stop submission if image upload fails
+            setSubmissionStatus("idle");
+            return; 
         }
     }
 
-
+    setSubmissionStatus("submitting");
     const result = await submitTool({ ...values, imageUrl });
 
     if (result.success && result.data) {
@@ -96,8 +104,22 @@ export function SubmitToolDialog({ children, onToolSubmitted }: SubmitToolDialog
         description: result.error,
       });
     }
+    setSubmissionStatus("idle");
   }
   const imageRef = form.register("image");
+
+  const isSubmitting = submissionStatus !== 'idle';
+
+  const submitButtonText = () => {
+    switch (submissionStatus) {
+      case 'uploading':
+        return 'Uploading Image...';
+      case 'submitting':
+        return 'Extracting Info...';
+      default:
+        return 'Submit Tool';
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -118,7 +140,7 @@ export function SubmitToolDialog({ children, onToolSubmitted }: SubmitToolDialog
                 <FormItem>
                   <FormLabel>Tool URL</FormLabel>
                   <FormControl>
-                    <Input placeholder="https://example.com" {...field} />
+                    <Input placeholder="https://example.com" {...field} disabled={isSubmitting} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -131,7 +153,7 @@ export function SubmitToolDialog({ children, onToolSubmitted }: SubmitToolDialog
                 <FormItem>
                   <FormLabel>Your Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="AI Explorer" {...field} />
+                    <Input placeholder="AI Explorer" {...field} disabled={isSubmitting} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -148,6 +170,7 @@ export function SubmitToolDialog({ children, onToolSubmitted }: SubmitToolDialog
                       placeholder="It's great for..."
                       className="resize-none"
                       {...field}
+                      disabled={isSubmitting}
                     />
                   </FormControl>
                   <FormMessage />
@@ -161,7 +184,7 @@ export function SubmitToolDialog({ children, onToolSubmitted }: SubmitToolDialog
                 <FormItem>
                   <FormLabel>Tool Image (Optional)</FormLabel>
                   <FormControl>
-                    <Input type="file" accept="image/*" {...imageRef} />
+                    <Input type="file" accept="image/*" {...imageRef} disabled={isSubmitting} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -169,14 +192,10 @@ export function SubmitToolDialog({ children, onToolSubmitted }: SubmitToolDialog
             />
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Submitting...
-                  </>
-                ) : (
-                  "Submit Tool"
+                {isSubmitting && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
+                {submitButtonText()}
               </Button>
             </DialogFooter>
           </form>
