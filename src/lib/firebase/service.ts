@@ -25,33 +25,25 @@ export async function getTools(): Promise<Tool[]> {
 
     // Seed data if the collection is empty
     if (toolsList.length === 0) {
-        console.log("No tools found, checking if seeding is needed.");
-        toolsList = await seedInitialData();
-    }
-
-    return toolsList;
-}
-
-export async function seedInitialData(): Promise<Tool[]> {
-    const toolsCollection = collection(db, "tools");
-    const toolsSnapshot = await getDocs(toolsCollection);
-    
-    // Only seed if the collection is empty
-    if (toolsSnapshot.empty) {
-        console.log("Seeding initial data...");
-        const seededTools: Tool[] = [];
+        console.log("No tools found, seeding initial data.");
         for (const tool of initialTools) {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { id, ...toolData } = tool;
-            const docRef = await addDoc(toolsCollection, toolData);
-            seededTools.push({ ...tool, id: docRef.id });
+            await addDoc(toolsCollection, toolData);
         }
-        console.log("Seeding complete.");
-        // Return the freshly seeded tools, sorted by date
-        return seededTools.sort((a,b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+        // After seeding, fetch the data again to ensure we have IDs and correct timestamps
+        const newSnapshot = await getDocs(q);
+        toolsList = newSnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                ...data,
+                id: doc.id,
+                submittedAt: (data.submittedAt as Timestamp).toDate(),
+            } as Tool;
+        });
     }
-    console.log("Data already exists, skipping seed.");
-    return [];
+
+    return toolsList;
 }
 
 
