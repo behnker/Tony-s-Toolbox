@@ -19,7 +19,7 @@ import {
     DialogTrigger,
   } from "@/components/ui/dialog"
 import type { Tool } from "@/lib/types";
-import { ArrowUpRight, Calendar, Coins, PersonStanding, Sparkles, Star, ArrowBigUp, ArrowBigDown } from "lucide-react";
+import { ArrowUpRight, Calendar, Coins, PersonStanding, Sparkles, Star, ArrowBigUp, ArrowBigDown, User } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
@@ -124,7 +124,10 @@ export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
                         <blockquote className="mt-2 border-l-2 pl-4 italic text-muted-foreground">
                             "{tool.justification}"
                         </blockquote>
-                        <p className="text-right text-sm font-medium text-foreground">- {tool.submittedBy}</p>
+                        <div className="text-right text-sm font-medium text-foreground flex items-center justify-end gap-2 mt-2">
+                            <User className="h-4 w-4" />
+                            <span>- {tool.submittedBy}</span>
+                        </div>
                     </div>
                 )}
             </div>
