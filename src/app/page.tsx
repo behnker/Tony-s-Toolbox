@@ -75,12 +75,10 @@ export default function Home() {
         return (a.upvotes - a.downvotes) - (b.upvotes - b.downvotes);
       }
       if (sortBy === "newest") {
-        // Robust date comparison
-        const toDate = (date: Date | Timestamp): Date => {
-          if (date instanceof Timestamp) {
-            return date.toDate();
-          }
-          return date;
+        const toDate = (date: Date | Timestamp | undefined): Date => {
+            if (!date) return new Date(0);
+            if (date instanceof Timestamp) return date.toDate();
+            return new Date(date);
         }
         const dateA = toDate(a.submittedAt);
         const dateB = toDate(b.submittedAt);

@@ -136,7 +136,7 @@ export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
                             <ArrowBigDown className={cn("h-4 w-4", vote === 'down' && 'fill-primary text-primary')} />
                         </Button>
                     </div>
-                    <span>{formatDistanceToNow(new Date(tool.submittedAt), { addSuffix: true })}</span>
+                    <span>{tool.submittedAt ? formatDistanceToNow(tool.submittedAt, { addSuffix: true }) : ''}</span>
                 </CardFooter>
             </Card>
         </DialogTrigger>
@@ -163,7 +163,7 @@ export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
                     <div className="flex items-center gap-2 text-muted-foreground"><PersonStanding className="h-4 w-4 text-primary" /> Ease of Use: <span className="font-semibold text-foreground">{tool.easeOfUse}</span></div>
                     <div className="flex items-center gap-2 text-muted-foreground"><ArrowBigUp className="h-4 w-4 text-primary" /> Upvotes: <span className="font-semibold text-foreground">{tool.upvotes}</span></div>
                     <div className="flex items-center gap-2 text-muted-foreground"><ArrowBigDown className="h-4 w-4 text-primary" /> Downvotes: <span className="font-semibold text-foreground">{tool.downvotes}</span></div>
-                    <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="h-4 w-4 text-primary" /> Submitted: <span className="font-semibold text-foreground">{formatDistanceToNow(new Date(tool.submittedAt), { addSuffix: true })}</span></div>
+                    <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="h-4 w-4 text-primary" /> Submitted: <span className="font-semibold text-foreground">{tool.submittedAt ? formatDistanceToNow(tool.submittedAt, { addSuffix: true }) : ''}</span></div>
                 </div>
                 {tool.submittedBy && tool.justification && (
                     <div className="pt-4 border-t">

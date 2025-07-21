@@ -14,7 +14,7 @@ export type Tool = {
   easeOfUse: EaseOfUse;
   submittedBy?: string;
   justification?: string;
-  submittedAt: Date | Timestamp;
+  submittedAt: Date;
   upvotes: number;
   downvotes: number;
   imageUrl?: string;
