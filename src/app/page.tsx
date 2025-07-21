@@ -19,7 +19,7 @@ export default function Home() {
     easeOfUse: "all",
     submittedBy: "all",
   });
-  const [sortBy, setSortBy] = useState<SortState>("popular");
+  const [sortBy, setSortBy] = useState<SortState>("most-up-votes");
 
   useEffect(() => {
     setIsMounted(true);
@@ -55,8 +55,11 @@ export default function Home() {
     });
 
     return filtered.sort((a, b) => {
-      if (sortBy === "popular") {
-        return (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes);
+      if (sortBy === "most-up-votes") {
+        return b.upvotes - a.upvotes;
+      }
+      if (sortBy === "most-down-votes") {
+        return b.downvotes - a.downvotes;
       }
       if (sortBy === "newest") {
         return b.submittedAt.getTime() - a.submittedAt.getTime();

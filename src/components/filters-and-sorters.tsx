@@ -21,7 +21,7 @@ export type FilterState = {
   submittedBy: string;
 };
 
-export type SortState = "popular" | "newest";
+export type SortState = "most-up-votes" | "most-down-votes" | "newest";
 
 type FiltersProps = {
   filters: FilterState;
@@ -162,8 +162,9 @@ export function Filters({
                 <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
-                <SelectItem value="popular">Popular</SelectItem>
-                <SelectItem value="newest">Newest</SelectItem>
+                  <SelectItem value="most-up-votes">Most Up Votes</SelectItem>
+                  <SelectItem value="most-down-votes">Most Down Votes</SelectItem>
+                  <SelectItem value="newest">Newest</SelectItem>
                 </SelectContent>
             </Select>
         </div>
