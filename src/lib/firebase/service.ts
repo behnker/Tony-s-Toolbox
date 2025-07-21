@@ -28,10 +28,10 @@ export async function getTools(): Promise<Tool[]> {
         for (const tool of initialTools) {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { id, ...toolData } = tool;
-            // Convert JS Date to Firestore Timestamp for seeding
+            // Convert string date to Firestore Timestamp for seeding
             const seedData = {
                 ...toolData,
-                submittedAt: Timestamp.fromDate(new Date(toolData.submittedAt as unknown as string)),
+                submittedAt: Timestamp.fromDate(new Date(tool.submittedAt)),
             };
             batch.push(addDoc(toolsCollection, seedData));
         }
