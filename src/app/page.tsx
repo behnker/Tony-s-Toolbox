@@ -29,10 +29,10 @@ export default function Home() {
     setTools((prevTools) => [newTool, ...prevTools]);
   };
   
-  const handleVoteChange = (toolId: string, newVotes: number) => {
+  const handleVoteChange = (toolId: string, type: 'up' | 'down', newUpvotes: number, newDownvotes: number) => {
     setTools(prevTools =>
       prevTools.map(tool =>
-        tool.id === toolId ? { ...tool, votes: newVotes } : tool
+        tool.id === toolId ? { ...tool, upvotes: newUpvotes, downvotes: newDownvotes } : tool
       )
     );
   };
@@ -54,7 +54,7 @@ export default function Home() {
 
     return filtered.sort((a, b) => {
       if (sortBy === "popular") {
-        return b.votes - a.votes;
+        return (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes);
       }
       if (sortBy === "newest") {
         return b.submittedAt.getTime() - a.submittedAt.getTime();

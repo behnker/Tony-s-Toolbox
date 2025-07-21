@@ -39,7 +39,8 @@ export async function submitTool(
       submittedBy: validation.data.submittedBy,
       justification: validation.data.justification,
       submittedAt: new Date(),
-      votes: Math.floor(Math.random() * 50), // Start with random votes
+      upvotes: 1,
+      downvotes: 0,
     };
 
     return { success: true, data: newTool };

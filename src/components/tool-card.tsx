@@ -26,7 +26,7 @@ import { cn } from '@/lib/utils';
 
 type ToolCardProps = {
   tool: Tool;
-  onVoteChange: (toolId: string, newVotes: number) => void;
+  onVoteChange: (toolId: string, type: 'up' | 'down', newUpvotes: number, newDownvotes: number) => void;
 };
 
 export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
@@ -34,30 +34,40 @@ export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
 
   const handleUpvote = (e: React.MouseEvent) => {
     e.stopPropagation();
+    let newUpvotes = tool.upvotes;
+    let newDownvotes = tool.downvotes;
+
     if (vote === 'up') {
         setVote(null);
-        onVoteChange(tool.id, tool.votes - 1);
+        newUpvotes--;
     } else if (vote === 'down') {
         setVote('up');
-        onVoteChange(tool.id, tool.votes + 2);
+        newUpvotes++;
+        newDownvotes--;
     } else {
         setVote('up');
-        onVoteChange(tool.id, tool.votes + 1);
+        newUpvotes++;
     }
+    onVoteChange(tool.id, 'up', newUpvotes, newDownvotes);
   };
 
   const handleDownvote = (e: React.MouseEvent) => {
     e.stopPropagation();
+    let newUpvotes = tool.upvotes;
+    let newDownvotes = tool.downvotes;
+
     if (vote === 'down') {
         setVote(null);
-        onVoteChange(tool.id, tool.votes + 1);
+        newDownvotes--;
     } else if (vote === 'up') {
         setVote('down');
-        onVoteChange(tool.id, tool.votes - 2);
+        newDownvotes++;
+        newUpvotes--;
     } else {
         setVote('down');
-        onVoteChange(tool.id, tool.votes - 1);
+        newDownvotes++;
     }
+    onVoteChange(tool.id, 'down', newUpvotes, newDownvotes);
   };
     
   return (
@@ -85,7 +95,7 @@ export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
                         <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleUpvote}>
                             <ArrowBigUp className={cn("h-4 w-4", vote === 'up' && 'fill-primary text-primary')} />
                         </Button>
-                        <span className="font-bold text-sm text-foreground">{tool.votes}</span>
+                        <span className="font-bold text-sm text-foreground">{tool.upvotes - tool.downvotes}</span>
                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleDownvote}>
                             <ArrowBigDown className={cn("h-4 w-4", vote === 'down' && 'fill-primary text-primary')} />
                         </Button>
@@ -115,7 +125,8 @@ export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
                 <div className="grid grid-cols-2 gap-4 text-sm pt-4">
                     <div className="flex items-center gap-2 text-muted-foreground"><Coins className="h-4 w-4 text-primary" /> Price: <span className="font-semibold text-foreground">{tool.price}</span></div>
                     <div className="flex items-center gap-2 text-muted-foreground"><PersonStanding className="h-4 w-4 text-primary" /> Ease of Use: <span className="font-semibold text-foreground">{tool.easeOfUse}</span></div>
-                    <div className="flex items-center gap-2 text-muted-foreground"><Star className="h-4 w-4 text-primary" /> Votes: <span className="font-semibold text-foreground">{tool.votes}</span></div>
+                    <div className="flex items-center gap-2 text-muted-foreground"><ArrowBigUp className="h-4 w-4 text-primary" /> Upvotes: <span className="font-semibold text-foreground">{tool.upvotes}</span></div>
+                    <div className="flex items-center gap-2 text-muted-foreground"><ArrowBigDown className="h-4 w-4 text-primary" /> Downvotes: <span className="font-semibold text-foreground">{tool.downvotes}</span></div>
                     <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="h-4 w-4 text-primary" /> Submitted: <span className="font-semibold text-foreground">{formatDistanceToNow(tool.submittedAt, { addSuffix: true })}</span></div>
                 </div>
                 {tool.submittedBy && tool.justification && (
