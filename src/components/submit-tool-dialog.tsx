@@ -29,15 +29,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { submitTool } from "@/app/actions";
 import type { Tool } from "@/lib/types";
 import { Loader2 } from "lucide-react";
-import { storage } from "@/lib/firebase";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 
 const formSchema = z.object({
   url: z.string().url({ message: "Please enter a valid URL." }),
   submittedBy: z.string().min(2, { message: "Name must be at least 2 characters." }),
   justification: z.string().min(10, { message: "Justification must be at least 10 characters." }),
-  image: z.custom<FileList>().optional(),
 });
 
 type SubmitToolDialogProps = {
@@ -45,7 +42,7 @@ type SubmitToolDialogProps = {
   onToolSubmitted: (tool: Tool) => void;
 };
 
-type SubmissionStatus = "idle" | "uploading" | "submitting";
+type SubmissionStatus = "idle" | "submitting";
 
 
 export function SubmitToolDialog({ children, onToolSubmitted }: SubmitToolDialogProps) {
@@ -63,31 +60,8 @@ export function SubmitToolDialog({ children, onToolSubmitted }: SubmitToolDialog
 
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    let imageUrl: string | undefined = undefined;
-    setSubmissionStatus("idle");
-
-    // Handle file upload
-    if (values.image && values.image.length > 0) {
-        setSubmissionStatus("uploading");
-        const file = values.image[0];
-        const storageRef = ref(storage, `tool-images/${crypto.randomUUID()}-${file.name}`);
-        try {
-            const snapshot = await uploadBytes(storageRef, file);
-            imageUrl = await getDownloadURL(snapshot.ref);
-        } catch (error) {
-            console.error("Error uploading image:", error);
-            toast({
-                variant: "destructive",
-                title: "Image Upload Failed",
-                description: "Could not upload the image. Please try again.",
-            });
-            setSubmissionStatus("idle");
-            return; 
-        }
-    }
-
     setSubmissionStatus("submitting");
-    const result = await submitTool({ ...values, imageUrl });
+    const result = await submitTool(values);
 
     if (result.success && result.data) {
       toast({
@@ -106,20 +80,8 @@ export function SubmitToolDialog({ children, onToolSubmitted }: SubmitToolDialog
     }
     setSubmissionStatus("idle");
   }
-  const imageRef = form.register("image");
 
   const isSubmitting = submissionStatus !== 'idle';
-
-  const submitButtonText = () => {
-    switch (submissionStatus) {
-      case 'uploading':
-        return 'Uploading Image...';
-      case 'submitting':
-        return 'Extracting Info...';
-      default:
-        return 'Submit Tool';
-    }
-  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -177,25 +139,12 @@ export function SubmitToolDialog({ children, onToolSubmitted }: SubmitToolDialog
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="image"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tool Image (Optional)</FormLabel>
-                  <FormControl>
-                    <Input type="file" accept="image/*" {...imageRef} disabled={isSubmitting} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                {submitButtonText()}
+                {isSubmitting ? 'Extracting Info...' : 'Submit Tool'}
               </Button>
             </DialogFooter>
           </form>
