@@ -2,9 +2,8 @@
 "use server";
 
 import { z } from "zod";
-import { extractMetadataFromUrl } from "@/ai/flows/extract-metadata";
+import { generateMetadata } from "@/ai/flows/generate-metadata";
 import { extractImageFromUrl } from "@/ai/flows/extract-image-from-url";
-import { generateShortDescription } from "@/ai/flows/generate-short-description";
 import { addTool, updateToolVotes } from "@/lib/firebase/service";
 import type { Tool } from "@/lib/types";
 import { revalidatePath } from "next/cache";
@@ -17,26 +16,6 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-async function getWebsiteContent(url: string): Promise<string> {
-  try {
-    const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
-    if (!response.ok) {
-      console.error(`Failed to fetch website content: ${response.status} ${response.statusText}`);
-      return "";
-    }
-    const text = await response.text();
-    // A simple way to clean up HTML and get text content.
-    // This is not perfect and might be improved with a more robust library.
-    return text.replace(/<style[^>]*>.*<\/style>/gs, '')
-               .replace(/<script[^>]*>.*<\/script>/gs, '')
-               .replace(/<[^>]+>/g, ' ')
-               .replace(/\s+/g, ' ')
-               .trim();
-  } catch (error) {
-    console.error("Error fetching website content:", error);
-    return "";
-  }
-}
 
 export async function submitTool(
   values: FormValues
@@ -45,33 +24,22 @@ export async function submitTool(
   if (!validation.success) {
     return { success: false, error: "Invalid input." };
   }
-  const { url } = validation.data;
+  const { url, justification } = validation.data;
 
   try {
     const [metadata, image] = await Promise.all([
-      extractMetadataFromUrl({ url }),
+      generateMetadata({ url, justification }),
       extractImageFromUrl({ url }),
     ]);
-
-    let description = metadata.description;
-
-    // If description is missing or too short, generate one.
-    if (!description || description.split(' ').length < 5) {
-      const websiteContent = await getWebsiteContent(url);
-      if (websiteContent && websiteContent.length > 100) { // Check for meaningful content
-        const generated = await generateShortDescription({ url, websiteContent });
-        description = generated.shortDescription;
-      }
-    }
     
-    if (!metadata.title || !description) {
-        return { success: false, error: "Could not extract or generate sufficient metadata. The URL might be blocking our AI or the page may lack clear information. Please try a different URL."}
+    if (!metadata || !metadata.title || !metadata.description) {
+        return { success: false, error: "Could not generate metadata for this tool. The AI may not be familiar with this URL."}
     }
 
     const newToolData: Omit<Tool, 'id' | 'submittedAt'> = {
       url: validation.data.url,
       name: metadata.title,
-      description: description,
+      description: metadata.description,
       categories: metadata.categories.length > 0 ? metadata.categories : ['general'],
       price: 'Freemium', 
       easeOfUse: 'Beginner', 
