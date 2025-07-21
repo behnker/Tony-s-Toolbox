@@ -1,3 +1,4 @@
+
 import { db } from "./client";
 import { collection, addDoc, getDocs, Timestamp, orderBy, query, doc, updateDoc, increment, serverTimestamp } from "firebase/firestore";
 import type { Tool } from "@/lib/types";
@@ -17,32 +18,27 @@ export async function addTool(tool: Omit<Tool, 'id' | 'submittedAt'>): Promise<T
 export async function getTools(): Promise<Tool[]> {
     const toolsCollection = collection(db, "tools");
     const q = query(toolsCollection, orderBy("submittedAt", "desc"));
-    const toolsSnapshot = await getDocs(q);
+    
+    let toolsSnapshot = await getDocs(q);
     
     // Seed data if the collection is empty
     if (toolsSnapshot.empty) {
         console.log("No tools found, seeding initial data.");
+        const batch = [];
         for (const tool of initialTools) {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { id, ...toolData } = tool;
             // Convert JS Date to Firestore Timestamp for seeding
             const seedData = {
                 ...toolData,
-                submittedAt: Timestamp.fromDate(new Date(toolData.submittedAt as Date)),
+                submittedAt: Timestamp.fromDate(new Date(toolData.submittedAt as unknown as string)),
             };
-            await addDoc(toolsCollection, seedData);
+            batch.push(addDoc(toolsCollection, seedData));
         }
+        await Promise.all(batch);
+
         // After seeding, fetch the data again to ensure we have IDs and correct timestamps
-        const newSnapshot = await getDocs(q);
-        const toolsList = newSnapshot.docs.map(doc => {
-            const data = doc.data();
-            return {
-                ...data,
-                id: doc.id,
-                submittedAt: (data.submittedAt as Timestamp).toDate(),
-            } as Tool;
-        });
-        return toolsList;
+        toolsSnapshot = await getDocs(q);
     }
 
     const toolsList = toolsSnapshot.docs.map(doc => {
