@@ -135,7 +135,7 @@ export function Filters({
         <div className="flex-1 min-w-[200px]">
             <Label htmlFor="submittedBy" className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-primary" />
-                Developed by Community Member
+                Community Curated
             </Label>
             <Select
                 value={filters.submittedBy}
