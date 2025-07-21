@@ -138,7 +138,7 @@ export function Filters({
                 className="flex items-center gap-2 font-medium"
             >
                 <Sparkles className="h-4 w-4 text-primary" />
-                Community Recommended
+                Community Submitted
             </Label>
         </div>
       </div>
