@@ -74,8 +74,10 @@ export default function Home() {
         return (a.upvotes - a.downvotes) - (b.upvotes - b.downvotes);
       }
       if (sortBy === "newest") {
-        // Firestore Timestamps can be compared directly
-        return new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime();
+        // Ensure submittedAt are Date objects for correct comparison
+        const dateA = a.submittedAt instanceof Date ? a.submittedAt : new Date(a.submittedAt as any);
+        const dateB = b.submittedAt instanceof Date ? b.submittedAt : new Date(b.submittedAt as any);
+        return dateB.getTime() - dateA.getTime();
       }
       return 0;
     });

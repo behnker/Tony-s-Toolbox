@@ -68,7 +68,7 @@ export async function submitTool(
         return { success: false, error: "Could not extract or generate sufficient metadata. The URL might be blocking our AI or the page may lack clear information. Please try a different URL."}
     }
 
-    const newToolData: Omit<Tool, 'id'> = {
+    const newToolData: Omit<Tool, 'id' | 'submittedAt'> = {
       url: validation.data.url,
       name: metadata.title,
       description: description,
@@ -77,7 +77,6 @@ export async function submitTool(
       easeOfUse: 'Beginner', 
       submittedBy: validation.data.submittedBy,
       justification: validation.data.justification,
-      submittedAt: new Date(),
       upvotes: 1,
       downvotes: 0,
       imageUrl: image.imageUrl,
