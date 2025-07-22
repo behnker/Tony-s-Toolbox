@@ -20,17 +20,6 @@ async function seedDatabase() {
 }
 
 
-export async function addTool(tool: Omit<Tool, 'id' | 'submittedAt'>): Promise<Tool> {
-    const docRef = await addDoc(collection(db, "tools"), {
-        ...tool,
-        submittedAt: serverTimestamp(),
-    });
-    
-    // The serverTimestamp() will be null on the client until it's processed by the server.
-    // We return a client-side date for optimistic updates. The real date will be fetched on reload.
-    return { ...tool, id: docRef.id, submittedAt: new Date() };
-}
-
 export async function getTools(): Promise<Tool[]> {
     const toolsCollection = collection(db, "tools");
     const q = query(toolsCollection, orderBy("submittedAt", "desc"));
@@ -60,6 +49,17 @@ export async function getTools(): Promise<Tool[]> {
     });
 
     return toolsList;
+}
+
+export async function addTool(tool: Omit<Tool, 'id' | 'submittedAt'>): Promise<Tool> {
+    const docRef = await addDoc(collection(db, "tools"), {
+        ...tool,
+        submittedAt: serverTimestamp(),
+    });
+    
+    // The serverTimestamp() will be null on the client until it's processed by the server.
+    // We return a client-side date for optimistic updates. The real date will be fetched on reload.
+    return { ...tool, id: docRef.id, submittedAt: new Date() };
 }
 
 export async function updateToolVotes(toolId: string, upvoteIncrement: number, downvoteIncrement: number) {
