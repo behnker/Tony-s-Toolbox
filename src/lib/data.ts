@@ -1,6 +1,6 @@
 import type { Tool } from './types';
 
-export const initialTools: Omit<Tool, 'submittedAt' | 'id'> & { submittedAt: string }[] = [
+export const initialTools: Omit<Tool, 'submittedAt' | 'id'>[] = [
   {
     name: 'GenKit AI',
     description: 'A powerful framework for building, deploying, and monitoring AI-powered features with Node.js.',
@@ -10,7 +10,6 @@ export const initialTools: Omit<Tool, 'submittedAt' | 'id'> & { submittedAt: str
     easeOfUse: 'Intermediate',
     submittedBy: 'AI Enthusiast',
     justification: 'The best way to build production-ready AI apps.',
-    submittedAt: '2024-05-10T10:00:00Z',
     upvotes: 100,
     downvotes: 5,
     imageUrl: 'https://placehold.co/600x400.png',
@@ -24,7 +23,6 @@ export const initialTools: Omit<Tool, 'submittedAt' | 'id'> & { submittedAt: str
     easeOfUse: 'Beginner',
     submittedBy: 'CreativePro',
     justification: 'Incredibly easy to use and produces high-quality images.',
-    submittedAt: '2024-05-20T14:30:00Z',
     upvotes: 90,
     downvotes: 2,
     imageUrl: 'https://placehold.co/600x400.png',
@@ -38,7 +36,6 @@ export const initialTools: Omit<Tool, 'submittedAt' | 'id'> & { submittedAt: str
     easeOfUse: 'Beginner',
     submittedBy: 'PodcasterPete',
     justification: 'A game-changer for finding background music for my shows.',
-    submittedAt: '2024-05-18T09:00:00Z',
     upvotes: 80,
     downvotes: 4,
     imageUrl: 'https://placehold.co/600x400.png',
@@ -52,7 +49,6 @@ export const initialTools: Omit<Tool, 'submittedAt' | 'id'> & { submittedAt: str
     easeOfUse: 'Beginner',
     submittedBy: 'ProductivityHackr',
     justification: 'Seamlessly blends into my existing workflow and saves me hours.',
-    submittedAt: '2024-04-25T11:00:00Z',
     upvotes: 98,
     downvotes: 6,
     imageUrl: 'https://placehold.co/600x400.png',
@@ -66,7 +62,6 @@ export const initialTools: Omit<Tool, 'submittedAt' | 'id'> & { submittedAt: str
     easeOfUse: 'Intermediate',
     submittedBy: 'VideoVince',
     justification: 'The future of video editing. The AI tools are incredibly powerful.',
-    submittedAt: '2024-05-21T12:00:00Z',
     upvotes: 88,
     downvotes: 3,
     imageUrl: 'https://placehold.co/600x400.png',
@@ -80,7 +75,6 @@ export const initialTools: Omit<Tool, 'submittedAt' | 'id'> & { submittedAt: str
     easeOfUse: 'Beginner',
     submittedBy: 'CorporateTrainer',
     justification: 'Perfect for creating training materials quickly and consistently.',
-    submittedAt: '2024-05-15T16:45:00Z',
     upvotes: 75,
     downvotes: 5,
     imageUrl: 'https://placehold.co/600x400.png',
@@ -94,7 +88,6 @@ export const initialTools: Omit<Tool, 'submittedAt' | 'id'> & { submittedAt: str
     easeOfUse: 'Beginner',
     submittedBy: 'MarketerMary',
     justification: 'Helps overcome writer\'s block and generates great ideas for campaigns.',
-    submittedAt: '2024-05-01T08:20:00Z',
     upvotes: 92,
     downvotes: 3,
     imageUrl: 'https://placehold.co/600x400.png',
@@ -108,7 +101,6 @@ export const initialTools: Omit<Tool, 'submittedAt' | 'id'> & { submittedAt: str
     easeOfUse: 'Expert',
     submittedBy: 'OpenSourceDev',
     justification: 'A very capable open-source model that can be fine-tuned for specific tasks.',
-    submittedAt: '2024-04-18T18:00:00Z',
     upvotes: 110,
     downvotes: 12,
     imageUrl: 'https://placehold.co/600x400.png',

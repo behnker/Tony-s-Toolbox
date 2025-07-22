@@ -9,10 +9,10 @@ async function seedDatabase() {
     const batch = writeBatch(db);
     initialTools.forEach((tool) => {
         const newDocRef = doc(toolsCollection);
-        // Correctly parse the string into a Date object before creating a Timestamp
+        // The `submittedAt` is now a Date object from initialTools, so no parsing is needed.
         const seedData = {
             ...tool,
-            submittedAt: Timestamp.fromDate(new Date(tool.submittedAt)),
+            submittedAt: Timestamp.fromDate(tool.submittedAt as Date),
         };
         batch.set(newDocRef, seedData);
     });

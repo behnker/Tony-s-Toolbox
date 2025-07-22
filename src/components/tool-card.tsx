@@ -26,6 +26,7 @@ import { formatDistanceToNow } from "date-fns";
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { updateVote } from '@/app/actions';
+import { Timestamp } from 'firebase/firestore';
 
 
 type ToolCardProps = {
@@ -42,6 +43,12 @@ function getImageHint(categories: string[]): string {
     if (categories.includes('copywriting')) return 'writing text';
     if (categories.includes('llm')) return 'neural network';
     return 'abstract background';
+}
+
+function getFormattedDate(date: Date | Timestamp | undefined): string {
+    if (!date) return '';
+    const dateObj = date instanceof Timestamp ? date.toDate() : date;
+    return formatDistanceToNow(dateObj, { addSuffix: true });
 }
 
 export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
@@ -136,7 +143,7 @@ export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
                             <ArrowBigDown className={cn("h-4 w-4", vote === 'down' && 'fill-primary text-primary')} />
                         </Button>
                     </div>
-                    <span>{tool.submittedAt ? formatDistanceToNow(tool.submittedAt, { addSuffix: true }) : ''}</span>
+                    <span>{getFormattedDate(tool.submittedAt)}</span>
                 </CardFooter>
             </Card>
         </DialogTrigger>
@@ -163,7 +170,7 @@ export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
                     <div className="flex items-center gap-2 text-muted-foreground"><PersonStanding className="h-4 w-4 text-primary" /> Ease of Use: <span className="font-semibold text-foreground">{tool.easeOfUse}</span></div>
                     <div className="flex items-center gap-2 text-muted-foreground"><ArrowBigUp className="h-4 w-4 text-primary" /> Upvotes: <span className="font-semibold text-foreground">{tool.upvotes}</span></div>
                     <div className="flex items-center gap-2 text-muted-foreground"><ArrowBigDown className="h-4 w-4 text-primary" /> Downvotes: <span className="font-semibold text-foreground">{tool.downvotes}</span></div>
-                    <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="h-4 w-4 text-primary" /> Submitted: <span className="font-semibold text-foreground">{tool.submittedAt ? formatDistanceToNow(tool.submittedAt, { addSuffix: true }) : ''}</span></div>
+                    <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="h-4 w-4 text-primary" /> Submitted: <span className="font-semibold text-foreground">{getFormattedDate(tool.submittedAt)}</span></div>
                 </div>
                 {tool.submittedBy && tool.justification && (
                     <div className="pt-4 border-t">
@@ -182,5 +189,3 @@ export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
     </Dialog>
   );
 }
-
-    
