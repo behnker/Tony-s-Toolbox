@@ -35,16 +35,17 @@ export async function getTools(): Promise<Tool[]> {
 
     const toolsList = toolsSnapshot.docs.map(doc => {
         const data = doc.data();
-        // The `submittedAt` field will be a Firestore Timestamp.
-        // We must convert it to a JavaScript Date object for the client.
+        // This is the critical fix:
+        // Ensure submittedAt is a valid Date object, whether it's a Timestamp or already a Date.
+        // This prevents the .toDate() error on a value that is not a Timestamp.
         const submittedAt = data.submittedAt instanceof Timestamp 
             ? data.submittedAt.toDate() 
-            : new Date(); // Fallback for safety
+            : data.submittedAt; // If it's not a timestamp, assume it's a JS Date or other valid format
 
         return {
             ...data,
             id: doc.id,
-            submittedAt: submittedAt,
+            submittedAt: new Date(submittedAt), // Ensure it is always a JS Date object
         } as Tool;
     });
 
@@ -73,5 +74,7 @@ export async function updateToolVotes(toolId: string, upvoteIncrement: number, d
     updateData.downvotes = increment(downvoteIncrement);
   }
 
-  await updateDoc(toolRef, updateData);
+  if (Object.keys(updateData).length > 0) {
+    await updateDoc(toolRef, updateData);
+  }
 }
