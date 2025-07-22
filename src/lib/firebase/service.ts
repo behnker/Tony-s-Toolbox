@@ -4,6 +4,22 @@ import { collection, addDoc, getDocs, Timestamp, orderBy, query, doc, updateDoc,
 import type { Tool } from "@/lib/types";
 import { initialTools } from "@/lib/data";
 
+async function seedDatabase() {
+    const toolsCollection = collection(db, "tools");
+    const batch = writeBatch(db);
+    initialTools.forEach((tool) => {
+        const newDocRef = doc(toolsCollection);
+        // Correctly parse the string into a Date object before creating a Timestamp
+        const seedData = {
+            ...tool,
+            submittedAt: Timestamp.fromDate(new Date(tool.submittedAt)),
+        };
+        batch.set(newDocRef, seedData);
+    });
+    await batch.commit();
+}
+
+
 export async function addTool(tool: Omit<Tool, 'id' | 'submittedAt'>): Promise<Tool> {
     const docRef = await addDoc(collection(db, "tools"), {
         ...tool,
@@ -23,28 +39,18 @@ export async function getTools(): Promise<Tool[]> {
     
     if (toolsSnapshot.empty) {
         console.log("No tools found, seeding initial data.");
-        const batch = writeBatch(db);
-        initialTools.forEach((tool) => {
-            const newDocRef = doc(toolsCollection);
-            const seedData = {
-                ...tool,
-                submittedAt: Timestamp.fromDate(new Date(tool.submittedAt)),
-            };
-            batch.set(newDocRef, seedData);
-        });
-        await batch.commit();
-
+        await seedDatabase();
+        // After seeding, fetch the data again to ensure we get the correct format
         toolsSnapshot = await getDocs(q);
     }
 
     const toolsList = toolsSnapshot.docs.map(doc => {
         const data = doc.data();
-        // This is the critical fix:
-        // The `submittedAt` field could be a Firestore Timestamp or a JS Date (from optimistic update).
-        // We ensure it's always a JS Date before returning.
+        // The `submittedAt` field will be a Firestore Timestamp.
+        // We must convert it to a JavaScript Date object for the client.
         const submittedAt = data.submittedAt instanceof Timestamp 
             ? data.submittedAt.toDate() 
-            : data.submittedAt;
+            : new Date(); // Fallback for safety
 
         return {
             ...data,
