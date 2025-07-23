@@ -11,12 +11,12 @@ import {z} from 'genkit';
 export const getWebsiteContent = ai.defineTool(
   {
     name: 'getWebsiteContent',
-    description: 'Fetches the plain text content of a website, including meta tags.',
+    description: 'Fetches the title and meta description of a website.',
     inputSchema: z.object({
       url: z.string().url().describe('The URL of the website to fetch.'),
     }),
     outputSchema: z.object({
-      content: z.string().describe('The plain text content of the website.'),
+      content: z.string().describe('The title and meta description of the website.'),
     }),
   },
   async ({url}) => {
@@ -30,14 +30,18 @@ export const getWebsiteContent = ai.defineTool(
       if (!response.ok) {
         throw new Error(`Failed to fetch website: ${response.statusText}`);
       }
-      // This is a very simple text extractor. A more robust solution would use a library like Cheerio.
+      
       const text = await response.text();
-      const bodyText = text.replace(/<style[^>]*>.*<\/style>/gs, '')
-                           .replace(/<script[^>]*>.*<\/script>/gs, '')
-                           .replace(/<[^>]+>/g, ' ')
-                           .replace(/\s+/g, ' ')
-                           .trim();
-      return {content: bodyText};
+      
+      const titleMatch = text.match(/<title>(.*?)<\/title>/);
+      const descriptionMatch = text.match(/<meta\s+name="description"\s+content="(.*?)"/);
+      const ogDescriptionMatch = text.match(/<meta\s+property="og:description"\s+content="(.*?)"/);
+
+      const title = titleMatch ? titleMatch[1] : 'No title found';
+      const description = descriptionMatch ? descriptionMatch[1] : (ogDescriptionMatch ? ogDescriptionMatch[1] : 'No description found');
+
+      return {content: `Title: ${title}\nDescription: ${description}`};
+
     } catch (error: any) {
       console.error(`Error fetching website content for ${url}:`, error);
       // Return a structured error to the LLM

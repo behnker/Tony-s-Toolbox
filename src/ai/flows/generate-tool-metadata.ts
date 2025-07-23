@@ -36,11 +36,11 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateToolMetadataOutputSchema},
   tools: [getWebsiteContent],
   prompt: `You are an expert at describing AI tools for a directory.
-You have access to a tool 'getWebsiteContent' which can fetch the content of a website given a URL.
+You have access to a tool 'getWebsiteContent' which can fetch the title and meta description of a website given a URL.
 
 Your task is to generate the following information for the tool at the given URL:
-- A concise and accurate title for the tool.
-- A clear, one or two-sentence description of what the tool does.
+- A concise and accurate title for the tool. Use the title from the website content if available.
+- A clear, one or two-sentence description of what the tool does. Use the description from the website content if available.
 - An array of up to 3 relevant categories (e.g., "image-generation", "developer-tools", "copywriting", "diagramming", "whiteboard").
 - A URL for a relevant image, like a logo, banner, or screenshot.
 
