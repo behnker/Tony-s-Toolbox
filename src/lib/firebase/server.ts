@@ -17,7 +17,15 @@ function getServiceAccount() {
     }
 
     const serviceAccountString = fs.readFileSync(keyPath, 'utf8');
-    return JSON.parse(serviceAccountString);
+    const serviceAccount = JSON.parse(serviceAccountString);
+
+    // The `private_key` from the file might have its newlines escaped as "\\n".
+    // The `cert` function needs the private key to have literal newlines.
+    if (serviceAccount.private_key) {
+        serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+    }
+    
+    return serviceAccount;
 }
 
 const serviceAccount = getServiceAccount();
