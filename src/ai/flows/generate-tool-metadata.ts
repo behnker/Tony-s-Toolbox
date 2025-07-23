@@ -1,0 +1,65 @@
+'use server';
+/**
+ * @fileOverview A flow to generate metadata for a tool by fetching and analyzing its website content.
+ *
+ * - generateToolMetadata - A function that generates metadata for a tool.
+ * - GenerateToolMetadataInput - The input type for the generateToolMetadata function.
+ * - GenerateToolMetadataOutput - The return type for the generateToolMetadata function.
+ */
+
+import {ai} from '@/ai/genkit';
+import {z} from 'genkit';
+import {getWebsiteContent} from '@/lib/tools';
+
+const GenerateToolMetadataInputSchema = z.object({
+  url: z.string().url().describe('The URL of the tool to describe.'),
+  justification: z.string().describe("The user's reason for recommending the tool."),
+});
+export type GenerateToolMetadataInput = z.infer<typeof GenerateToolMetadataInputSchema>;
+
+const GenerateToolMetadataOutputSchema = z.object({
+  title: z.string().describe('The name of the tool.'),
+  description: z.string().describe('A short, clear description of the tool.'),
+  categories: z.array(z.string()).describe('An array of relevant categories for the tool (e.g., "image-generation", "developer-tools", "copywriting", "diagramming", "whiteboard").'),
+  imageUrl: z.string().url().optional().describe('The URL of a relevant image (logo, banner, screenshot) for the tool.'),
+});
+export type GenerateToolMetadataOutput = z.infer<typeof GenerateToolMetadataOutputSchema>;
+
+
+export async function generateToolMetadata(input: GenerateToolMetadataInput): Promise<GenerateToolMetadataOutput> {
+  return generateToolMetadataFlow(input);
+}
+
+const prompt = ai.definePrompt({
+  name: 'generateToolMetadataPrompt',
+  input: {schema: GenerateToolMetadataInputSchema},
+  output: {schema: GenerateToolMetadataOutputSchema},
+  tools: [getWebsiteContent],
+  prompt: `You are an expert at describing AI tools for a directory.
+You have access to a tool 'getWebsiteContent' which can fetch the content of a website given a URL.
+
+Your task is to generate the following information for the tool at the given URL:
+- A concise and accurate title for the tool.
+- A clear, one or two-sentence description of what the tool does.
+- An array of up to 3 relevant categories (e.g., "image-generation", "developer-tools", "copywriting", "diagramming", "whiteboard").
+- A URL for a relevant image, like a logo, banner, or screenshot.
+
+If you can access the website content, base your response primarily on that.
+If you cannot access the website, base your response on your existing knowledge of the tool at the given URL and the user's justification.
+
+URL: {{{url}}}
+User's Justification: "{{{justification}}}"
+`,
+});
+
+const generateToolMetadataFlow = ai.defineFlow(
+  {
+    name: 'generateToolMetadataFlow',
+    inputSchema: GenerateToolMetadataInputSchema,
+    outputSchema: GenerateToolMetadataOutputSchema,
+  },
+  async input => {
+    const {output} = await prompt(input);
+    return output!;
+  }
+);

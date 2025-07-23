@@ -2,7 +2,7 @@
 "use server";
 
 import { z } from "zod";
-import { generateMetadata } from "@/ai/flows/generate-metadata";
+import { generateToolMetadata } from "@/ai/flows/generate-tool-metadata";
 import { addTool, updateToolVotes, getTools as getToolsFromDb } from "@/lib/firebase/service";
 import type { Tool } from "@/lib/types";
 import { revalidatePath } from "next/cache";
@@ -27,14 +27,15 @@ export async function submitTool(
 
   let metadata;
   try {
-    metadata = await generateMetadata({ url, justification });
-  } catch (error) {
+    metadata = await generateToolMetadata({ url, justification });
+  } catch (error: any) {
     console.error("AI metadata generation failed, creating tool with fallback data.", error);
     // Do not fail the entire submission. Create a fallback tool.
     metadata = {
         title: new URL(url).hostname, // Use hostname as a fallback title
         description: justification, // Use user's justification as description
         categories: ['general'], // Assign a default category
+        imageUrl: undefined,
     };
   }
 
@@ -51,7 +52,7 @@ export async function submitTool(
       upvotes: 1,
       downvotes: 0,
       // Omit imageUrl if it's undefined to prevent Firestore errors.
-      ...(undefined ? { imageUrl: undefined } : {}),
+      ...(metadata.imageUrl ? { imageUrl: metadata.imageUrl } : {}),
     };
 
     const savedTool = await addTool(newToolData);
