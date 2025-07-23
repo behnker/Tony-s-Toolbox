@@ -50,7 +50,8 @@ export async function submitTool(
       justification: justification,
       upvotes: 1,
       downvotes: 0,
-      imageUrl: undefined, // Always start with no image, can be updated later.
+      // Omit imageUrl if it's undefined to prevent Firestore errors.
+      ...(undefined ? { imageUrl: undefined } : {}),
     };
 
     const savedTool = await addTool(newToolData);
