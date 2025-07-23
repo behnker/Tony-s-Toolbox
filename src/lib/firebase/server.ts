@@ -7,7 +7,8 @@ if (!process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
     throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY is not set. Please add it to your .env file.');
 }
 
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string);
+const serviceAccountString = (process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string).replace(/\\n/g, '\\\\n');
+const serviceAccount = JSON.parse(serviceAccountString);
 
 const app = !getApps().length ? initializeApp({
     credential: cert(serviceAccount)
