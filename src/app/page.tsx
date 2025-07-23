@@ -38,8 +38,19 @@ export default function Home() {
     fetchTools();
   }, []);
 
-  const handleToolSubmitted = (newTool: Tool) => {
-    setTools((prevTools) => [newTool, ...prevTools]);
+  const handleToolSubmitted = (submittedTool: Tool) => {
+    setTools((prevTools) => {
+      const existingToolIndex = prevTools.findIndex(tool => tool.id === submittedTool.id);
+      if (existingToolIndex !== -1) {
+        // Update existing tool
+        const newTools = [...prevTools];
+        newTools[existingToolIndex] = submittedTool;
+        return newTools;
+      } else {
+        // Add new tool
+        return [submittedTool, ...prevTools];
+      }
+    });
   };
   
   const handleVoteChange = (toolId: string, newUpvotes: number, newDownvotes: number) => {
