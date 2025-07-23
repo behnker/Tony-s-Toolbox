@@ -1,6 +1,5 @@
-
 import { db } from "./server";
-import { collection, addDoc, getDocs, Timestamp, orderBy, query, doc, updateDoc, increment, serverTimestamp, writeBatch, FieldValue } from "firebase-admin/firestore";
+import { collection, addDoc, getDocs, Timestamp, orderBy, query, doc, updateDoc, increment, FieldValue, writeBatch } from "firebase/firestore";
 import type { Tool } from "@/lib/types";
 import { initialTools } from "@/lib/data";
 
@@ -11,7 +10,7 @@ async function seedDatabase() {
         const newDocRef = doc(toolsCollection);
         const seedData = {
             ...tool,
-            submittedAt: Timestamp.fromDate(tool.submittedAt),
+            submittedAt: FieldValue.serverTimestamp(),
         };
         batch.set(newDocRef, seedData);
     });
