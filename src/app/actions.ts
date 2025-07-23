@@ -2,8 +2,7 @@
 "use server";
 
 import { z } from "zod";
-import { generateMetadata } from "@/ai/flows/generate-metadata";
-import { extractImageFromUrl } from "@/ai/flows/extract-image-from-url";
+import { extractMetadata } from "@/ai/flows/extract-metadata";
 import { addTool, updateToolVotes, getTools as getToolsFromDb } from "@/lib/firebase/service";
 import type { Tool } from "@/lib/types";
 import { revalidatePath } from "next/cache";
@@ -27,27 +26,20 @@ export async function submitTool(
   const { url, justification, submittedBy } = validation.data;
 
   try {
-    const [metadata, image] = await Promise.all([
-        generateMetadata({ url, justification }),
-        extractImageFromUrl({ url })
-    ]);
+    const metadata = await extractMetadata({ url });
 
-    if (!metadata || !metadata.title || !metadata.description) {
-      return { success: false, error: "The AI could not generate metadata for this tool based on the URL and justification provided. Please try a different URL or a more descriptive justification." };
-    }
-    
     const newToolData: Omit<Tool, 'id' | 'submittedAt'> = {
       url: url,
-      name: metadata.title,
-      description: metadata.description,
-      categories: metadata.categories.length > 0 ? metadata.categories : ['general'],
+      name: metadata.title || 'Untitled Tool',
+      description: metadata.description || 'No description available.',
+      categories: metadata.categories && metadata.categories.length > 0 ? metadata.categories : ['general'],
       price: 'Freemium', 
       easeOfUse: 'Beginner', 
       submittedBy: submittedBy,
       justification: justification,
       upvotes: 1,
       downvotes: 0,
-      imageUrl: image.imageUrl,
+      imageUrl: metadata.imageUrl,
     };
 
     const savedTool = await addTool(newToolData);
