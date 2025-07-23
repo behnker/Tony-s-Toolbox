@@ -7,11 +7,12 @@ if (!process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
     throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY is not set. Please add it to your .env file.');
 }
 
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string);
-
 // The `private_key` from the environment variable has its newlines escaped as "\\n".
 // The `cert` function needs the private key to have literal newlines.
-serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string);
+if (serviceAccount.private_key) {
+    serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+}
 
 
 const app = !getApps().length ? initializeApp({
