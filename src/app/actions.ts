@@ -3,6 +3,7 @@
 
 import { z } from "zod";
 import { generateMetadata } from "@/ai/flows/generate-metadata";
+import { extractImageFromUrl } from "@/ai/flows/extract-image-from-url";
 import { addTool, updateToolVotes, getTools as getToolsFromDb } from "@/lib/firebase/service";
 import type { Tool } from "@/lib/types";
 import { revalidatePath } from "next/cache";
@@ -26,7 +27,10 @@ export async function submitTool(
   const { url, justification, submittedBy } = validation.data;
 
   try {
-    const metadata = await generateMetadata({ url, justification });
+    const [metadata, image] = await Promise.all([
+        generateMetadata({ url, justification }),
+        extractImageFromUrl({ url })
+    ]);
 
     if (!metadata || !metadata.title || !metadata.description) {
       return { success: false, error: "The AI could not generate metadata for this tool based on the URL and justification provided. Please try a different URL or a more descriptive justification." };
@@ -43,7 +47,7 @@ export async function submitTool(
       justification: justification,
       upvotes: 1,
       downvotes: 0,
-      imageUrl: undefined,
+      imageUrl: image.imageUrl,
     };
 
     const savedTool = await addTool(newToolData);
