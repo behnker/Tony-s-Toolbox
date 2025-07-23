@@ -3,7 +3,7 @@
 
 import { z } from "zod";
 import { generateToolMetadata } from "@/ai/flows/generate-tool-metadata";
-import { addTool, updateToolVotes, getTools as getToolsFromDb } from "@/lib/firebase/service";
+import { addTool, updateToolVotes, getTools as getToolsFromDb, getToolByUrl, updateTool } from "@/lib/firebase/service";
 import type { Tool } from "@/lib/types";
 import { revalidatePath } from "next/cache";
 
@@ -18,47 +18,64 @@ type FormValues = z.infer<typeof formSchema>;
 
 export async function submitTool(
   values: FormValues
-): Promise<{ success: boolean; data?: Tool; error?: string }> {
+): Promise<{ success: boolean; data?: Tool; error?: string; message?: string }> {
   const validation = formSchema.safeParse(values);
   if (!validation.success) {
     return { success: false, error: "Invalid input." };
   }
   const { url, justification, submittedBy } = validation.data;
 
+  const existingTool = await getToolByUrl(url);
+
   let metadata;
   try {
     metadata = await generateToolMetadata({ url, justification });
   } catch (error: any) {
-    console.error("AI metadata generation failed, creating tool with fallback data.", error);
-    // Do not fail the entire submission. Create a fallback tool.
+    console.error("AI metadata generation failed, using fallback data.", error);
+    // Create a fallback tool.
     metadata = {
-        title: new URL(url).hostname, // Use hostname as a fallback title
-        description: justification, // Use user's justification as description
-        categories: ['general'], // Assign a default category
+        title: new URL(url).hostname,
+        description: justification,
+        categories: ['general'],
         imageUrl: undefined,
     };
   }
 
   try {
-    const newToolData: Omit<Tool, 'id' | 'submittedAt'> = {
-      url: url,
-      name: metadata.title || new URL(url).hostname,
-      description: metadata.description || 'No description available.',
-      categories: metadata.categories && metadata.categories.length > 0 ? metadata.categories : ['general'],
-      price: 'Freemium', 
-      easeOfUse: 'Beginner', 
-      submittedBy: submittedBy,
-      justification: justification,
-      upvotes: 1,
-      downvotes: 0,
-      // Omit imageUrl if it's undefined to prevent Firestore errors.
-      ...(metadata.imageUrl ? { imageUrl: metadata.imageUrl } : {}),
-    };
+    if (existingTool) {
+      // Update existing tool
+      const updatedToolData: Partial<Omit<Tool, 'id' | 'submittedAt'>> = {
+        name: metadata.title || existingTool.name,
+        description: metadata.description || existingTool.description,
+        categories: metadata.categories && metadata.categories.length > 0 ? metadata.categories : existingTool.categories,
+        ...(metadata.imageUrl && { imageUrl: metadata.imageUrl }),
+        // You might want to update other fields as well, e.g., who last updated it.
+      };
+      
+      const updatedTool = await updateTool(existingTool.id, updatedToolData);
+      revalidatePath('/');
+      return { success: true, data: updatedTool, message: `${updatedTool.name} has been updated.` };
 
-    const savedTool = await addTool(newToolData);
-    revalidatePath('/');
-    return { success: true, data: savedTool };
+    } else {
+      // Add new tool
+      const newToolData: Omit<Tool, 'id' | 'submittedAt'> = {
+        url: url,
+        name: metadata.title || new URL(url).hostname,
+        description: metadata.description || 'No description available.',
+        categories: metadata.categories && metadata.categories.length > 0 ? metadata.categories : ['general'],
+        price: 'Freemium', 
+        easeOfUse: 'Beginner', 
+        submittedBy: submittedBy,
+        justification: justification,
+        upvotes: 1,
+        downvotes: 0,
+        ...(metadata.imageUrl && { imageUrl: metadata.imageUrl }),
+      };
 
+      const savedTool = await addTool(newToolData);
+      revalidatePath('/');
+      return { success: true, data: savedTool, message: `${savedTool.name} has been added.` };
+    }
   } catch (error) {
     console.error("Error submitting tool to database:", error);
     return { success: false, error: "Failed to save the tool to the database. Please try again." };

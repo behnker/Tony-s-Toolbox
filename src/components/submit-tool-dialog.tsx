@@ -65,8 +65,8 @@ export function SubmitToolDialog({ children, onToolSubmitted }: SubmitToolDialog
 
     if (result.success && result.data) {
       toast({
-        title: "Tool Submitted!",
-        description: `${result.data.name} has been added to the catalogue.`,
+        title: "Submission Successful!",
+        description: result.message,
       });
       onToolSubmitted(result.data);
       setOpen(false);

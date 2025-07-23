@@ -57,9 +57,16 @@ export async function addTool(tool: Omit<Tool, 'id' | 'submittedAt'>): Promise<T
         ...tool,
         submittedAt: FieldValue.serverTimestamp(),
     });
-    
-    return { ...tool, id: docRef.id, submittedAt: new Date() };
+    const newDoc = await docRef.get();
+    const data = newDoc.data();
+
+    return { 
+        ...(data as Omit<Tool, 'id' | 'submittedAt'>),
+        id: docRef.id, 
+        submittedAt: (data?.submittedAt as Timestamp).toDate() 
+    };
 }
+
 
 export async function updateToolVotes(toolId: string, upvoteIncrement: number, downvoteIncrement: number) {
   const toolRef = db.collection("tools").doc(toolId);
@@ -75,4 +82,37 @@ export async function updateToolVotes(toolId: string, upvoteIncrement: number, d
   if (Object.keys(updateData).length > 0) {
     await toolRef.update(updateData);
   }
+}
+
+export async function getToolByUrl(url: string): Promise<Tool | null> {
+    const toolsCollection = db.collection("tools");
+    const q = toolsCollection.where("url", "==", url).limit(1);
+    const snapshot = await q.get();
+
+    if (snapshot.empty) {
+        return null;
+    }
+
+    const doc = snapshot.docs[0];
+    const data = doc.data();
+
+    return {
+        ...data,
+        id: doc.id,
+        submittedAt: (data.submittedAt as Timestamp).toDate(),
+    } as Tool;
+}
+
+export async function updateTool(toolId: string, toolData: Partial<Omit<Tool, 'id'|'submittedAt'>>): Promise<Tool> {
+    const toolRef = db.collection("tools").doc(toolId);
+    await toolRef.update(toolData);
+    
+    const updatedDoc = await toolRef.get();
+    const data = updatedDoc.data();
+
+    return {
+        ...data,
+        id: updatedDoc.id,
+        submittedAt: (data?.submittedAt as Timestamp).toDate(),
+    } as Tool;
 }
