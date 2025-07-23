@@ -5,7 +5,7 @@ import { initializeApp, getApps, getApp, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 
 if (!process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
-    throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY is not set. Please add it to your .env file.');
+    throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY is not set. Please add it to your .env.local file.');
 }
 
 // The `private_key` from the environment variable has its newlines escaped as "\\n".
