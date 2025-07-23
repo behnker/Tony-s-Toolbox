@@ -1,6 +1,6 @@
 import type { Tool } from './types';
 
-export const initialTools: Omit<Tool, 'submittedAt' | 'id'>[] = [
+export const initialTools: Omit<Tool, 'id'>[] = [
   {
     name: 'GenKit AI',
     description: 'A powerful framework for building, deploying, and monitoring AI-powered features with Node.js.',
@@ -13,10 +13,11 @@ export const initialTools: Omit<Tool, 'submittedAt' | 'id'>[] = [
     upvotes: 100,
     downvotes: 5,
     imageUrl: 'https://placehold.co/600x400.png',
+    submittedAt: new Date('2024-01-15T10:00:00Z'),
   },
   {
     name: 'ImageFX',
-    description: 'Generate stunning images from text descriptions with Google\'s advanced image generation model.',
+    description: "Generate stunning images from text descriptions with Google's advanced image generation model.",
     url: 'https://aistudio.google.com/app/imagefx',
     categories: ['image-generation', 'art'],
     price: 'Free',
@@ -26,6 +27,7 @@ export const initialTools: Omit<Tool, 'submittedAt' | 'id'>[] = [
     upvotes: 90,
     downvotes: 2,
     imageUrl: 'https://placehold.co/600x400.png',
+    submittedAt: new Date('2024-02-20T14:30:00Z'),
   },
   {
     name: 'MusicFX',
@@ -35,10 +37,11 @@ export const initialTools: Omit<Tool, 'submittedAt' | 'id'>[] = [
     price: 'Free',
     easeOfUse: 'Beginner',
     submittedBy: 'PodcasterPete',
-    justification: 'A game-changer for finding background music for my shows.',
+    justification: "A game-changer for finding background music for my shows.",
     upvotes: 80,
     downvotes: 4,
     imageUrl: 'https://placehold.co/600x400.png',
+    submittedAt: new Date('2024-03-05T09:00:00Z'),
   },
   {
     name: 'Notion AI',
@@ -52,6 +55,7 @@ export const initialTools: Omit<Tool, 'submittedAt' | 'id'>[] = [
     upvotes: 98,
     downvotes: 6,
     imageUrl: 'https://placehold.co/600x400.png',
+    submittedAt: new Date('2024-01-25T11:00:00Z'),
   },
     {
     name: 'RunwayML',
@@ -65,6 +69,7 @@ export const initialTools: Omit<Tool, 'submittedAt' | 'id'>[] = [
     upvotes: 88,
     downvotes: 3,
     imageUrl: 'https://placehold.co/600x400.png',
+    submittedAt: new Date('2024-02-10T18:00:00Z'),
   },
   {
     name: 'Synthesia',
@@ -78,23 +83,25 @@ export const initialTools: Omit<Tool, 'submittedAt' | 'id'>[] = [
     upvotes: 75,
     downvotes: 5,
     imageUrl: 'https://placehold.co/600x400.png',
+    submittedAt: new Date('2024-03-12T16:45:00Z'),
   },
   {
     name: 'Copy.ai',
-    description: 'AI-powered copywriter that generates high-quality marketing copy, from blog posts to social media updates.',
+    description: "AI-powered copywriter that generates high-quality marketing copy, from blog posts to social media updates.",
     url: 'https://www.copy.ai/',
     categories: ['copywriting', 'marketing', 'seo'],
     price: 'Freemium',
     easeOfUse: 'Beginner',
     submittedBy: 'MarketerMary',
-    justification: 'Helps overcome writer\'s block and generates great ideas for campaigns.',
+    justification: "Helps overcome writer's block and generates great ideas for campaigns.",
     upvotes: 92,
     downvotes: 3,
     imageUrl: 'https://placehold.co/600x400.png',
+    submittedAt: new Date('2024-01-30T12:10:00Z'),
   },
   {
     name: 'Llama 3',
-    description: 'Meta\'s next-generation, open-source large language model, available for research and commercial use.',
+    description: "Meta's next-generation, open-source large language model, available for research and commercial use.",
     url: 'https://ai.meta.com/llama/',
     categories: ['llm', 'developer-tools', 'open-source'],
     price: 'Free',
@@ -104,5 +111,6 @@ export const initialTools: Omit<Tool, 'submittedAt' | 'id'>[] = [
     upvotes: 110,
     downvotes: 12,
     imageUrl: 'https://placehold.co/600x400.png',
+    submittedAt: new Date('2024-04-01T08:00:00Z'),
   },
 ];
