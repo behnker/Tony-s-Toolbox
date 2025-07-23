@@ -3,7 +3,6 @@
 
 import { z } from "zod";
 import { generateMetadata } from "@/ai/flows/generate-metadata";
-import { extractImageFromUrl } from "@/ai/flows/extract-image-from-url";
 import { addTool, updateToolVotes, getTools as getToolsFromDb } from "@/lib/firebase/service";
 import type { Tool } from "@/lib/types";
 import { revalidatePath } from "next/cache";
@@ -26,24 +25,23 @@ export async function submitTool(
   }
   const { url, justification, submittedBy } = validation.data;
 
+  let metadata;
   try {
-    // This flow is more reliable as it doesn't access the URL directly.
-    const metadata = await generateMetadata({ url, justification });
-    
-    let imageUrl;
-    try {
-        // This flow can fail if the website blocks access, so we wrap it.
-        const imageResult = await extractImageFromUrl({ url });
-        imageUrl = imageResult.imageUrl;
-    } catch (imageError) {
-        // Log the error but don't fail the entire submission.
-        console.warn(`Could not extract image from URL: ${url}. Proceeding without it.`, imageError);
-        imageUrl = undefined; // Ensure imageUrl is undefined to use placeholder
-    }
+    metadata = await generateMetadata({ url, justification });
+  } catch (error) {
+    console.error("AI metadata generation failed, creating tool with fallback data.", error);
+    // Do not fail the entire submission. Create a fallback tool.
+    metadata = {
+        title: new URL(url).hostname, // Use hostname as a fallback title
+        description: justification, // Use user's justification as description
+        categories: ['general'], // Assign a default category
+    };
+  }
 
+  try {
     const newToolData: Omit<Tool, 'id' | 'submittedAt'> = {
       url: url,
-      name: metadata.title || 'Untitled Tool',
+      name: metadata.title || new URL(url).hostname,
       description: metadata.description || 'No description available.',
       categories: metadata.categories && metadata.categories.length > 0 ? metadata.categories : ['general'],
       price: 'Freemium', 
@@ -52,18 +50,16 @@ export async function submitTool(
       justification: justification,
       upvotes: 1,
       downvotes: 0,
-      imageUrl: imageUrl,
+      imageUrl: undefined, // Always start with no image, can be updated later.
     };
 
     const savedTool = await addTool(newToolData);
     revalidatePath('/');
     return { success: true, data: savedTool };
+
   } catch (error) {
-    console.error("Error submitting tool:", error);
-    if (error instanceof Error && (error.message.includes('deadline') || error.message.includes('timeout') || error.message.includes('blocked'))) {
-        return { success: false, error: 'The request timed out or was blocked. The URL might be slow, inaccessible, or preventing automated requests.' };
-    }
-    return { success: false, error: "Failed to process the URL. Please ensure it's a valid and accessible page." };
+    console.error("Error submitting tool to database:", error);
+    return { success: false, error: "Failed to save the tool to the database. Please try again." };
   }
 }
 
