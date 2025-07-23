@@ -1,13 +1,13 @@
 import { db } from "./server";
-import { collection, addDoc, getDocs, Timestamp, orderBy, query, doc, updateDoc, increment, FieldValue, writeBatch } from "firebase/firestore";
 import type { Tool } from "@/lib/types";
 import { initialTools } from "@/lib/data";
+import { Timestamp, FieldValue } from 'firebase-admin/firestore';
 
 async function seedDatabase() {
-    const toolsCollection = collection(db, "tools");
+    const toolsCollection = db.collection("tools");
     const batch = db.batch();
     initialTools.forEach((tool) => {
-        const newDocRef = doc(toolsCollection);
+        const newDocRef = toolsCollection.doc();
         const seedData = {
             ...tool,
             submittedAt: FieldValue.serverTimestamp(),
@@ -19,15 +19,15 @@ async function seedDatabase() {
 
 
 export async function getTools(): Promise<Tool[]> {
-    const toolsCollection = collection(db, "tools");
-    const q = query(toolsCollection, orderBy("submittedAt", "desc"));
+    const toolsCollection = db.collection("tools");
+    const q = toolsCollection.orderBy("submittedAt", "desc");
     
-    let toolsSnapshot = await getDocs(q);
+    let toolsSnapshot = await q.get();
     
     if (toolsSnapshot.empty) {
         console.log("No tools found, seeding initial data.");
         await seedDatabase();
-        toolsSnapshot = await getDocs(q);
+        toolsSnapshot = await q.get();
     }
 
     const toolsList = toolsSnapshot.docs.map(doc => {
@@ -53,7 +53,7 @@ export async function getTools(): Promise<Tool[]> {
 }
 
 export async function addTool(tool: Omit<Tool, 'id' | 'submittedAt'>): Promise<Tool> {
-    const docRef = await addDoc(collection(db, "tools"), {
+    const docRef = await db.collection("tools").add({
         ...tool,
         submittedAt: FieldValue.serverTimestamp(),
     });
@@ -62,7 +62,7 @@ export async function addTool(tool: Omit<Tool, 'id' | 'submittedAt'>): Promise<T
 }
 
 export async function updateToolVotes(toolId: string, upvoteIncrement: number, downvoteIncrement: number) {
-  const toolRef = doc(db, "tools", toolId);
+  const toolRef = db.collection("tools").doc(toolId);
   
   const updateData: { [key: string]: any } = {};
   if (upvoteIncrement !== 0) {
@@ -73,6 +73,6 @@ export async function updateToolVotes(toolId: string, upvoteIncrement: number, d
   }
 
   if (Object.keys(updateData).length > 0) {
-    await updateDoc(toolRef, updateData);
+    await toolRef.update(updateData);
   }
 }
