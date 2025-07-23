@@ -12,7 +12,7 @@ export const initialTools: Omit<Tool, 'id'>[] = [
     justification: 'The best way to build production-ready AI apps.',
     upvotes: 100,
     downvotes: 5,
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: 'https://images.unsplash.com/photo-1696204215962-b5ded1525734?q=80&w=600&h=400&auto=format&fit=crop',
     submittedAt: new Date('2024-01-15T10:00:00Z'),
   },
   {
@@ -26,7 +26,7 @@ export const initialTools: Omit<Tool, 'id'>[] = [
     justification: 'Incredibly easy to use and produces high-quality images.',
     upvotes: 90,
     downvotes: 2,
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: 'https://images.unsplash.com/photo-1700322528624-a21a59c9610e?q=80&w=600&h=400&auto=format&fit=crop',
     submittedAt: new Date('2024-02-20T14:30:00Z'),
   },
   {
@@ -40,7 +40,7 @@ export const initialTools: Omit<Tool, 'id'>[] = [
     justification: "A game-changer for finding background music for my shows.",
     upvotes: 80,
     downvotes: 4,
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=600&h=400&auto=format&fit=crop',
     submittedAt: new Date('2024-03-05T09:00:00Z'),
   },
   {
@@ -54,7 +54,7 @@ export const initialTools: Omit<Tool, 'id'>[] = [
     justification: 'Seamlessly blends into my existing workflow and saves me hours.',
     upvotes: 98,
     downvotes: 6,
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: 'https://images.unsplash.com/photo-1620712943543-285f726a8484?q=80&w=600&h=400&auto=format&fit=crop',
     submittedAt: new Date('2024-01-25T11:00:00Z'),
   },
     {
@@ -68,7 +68,7 @@ export const initialTools: Omit<Tool, 'id'>[] = [
     justification: 'The future of video editing. The AI tools are incredibly powerful.',
     upvotes: 88,
     downvotes: 3,
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: 'https://images.unsplash.com/photo-1574717024632-4d15341453a7?q=80&w=600&h=400&auto=format&fit=crop',
     submittedAt: new Date('2024-02-10T18:00:00Z'),
   },
   {
@@ -82,7 +82,7 @@ export const initialTools: Omit<Tool, 'id'>[] = [
     justification: 'Perfect for creating training materials quickly and consistently.',
     upvotes: 75,
     downvotes: 5,
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: 'https://images.unsplash.com/photo-1518975939228-224183dc3b48?q=80&w=600&h=400&auto=format&fit=crop',
     submittedAt: new Date('2024-03-12T16:45:00Z'),
   },
   {
@@ -96,7 +96,7 @@ export const initialTools: Omit<Tool, 'id'>[] = [
     justification: "Helps overcome writer's block and generates great ideas for campaigns.",
     upvotes: 92,
     downvotes: 3,
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: 'https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?q=80&w=600&h=400&auto=format&fit=crop',
     submittedAt: new Date('2024-01-30T12:10:00Z'),
   },
   {
@@ -110,7 +110,7 @@ export const initialTools: Omit<Tool, 'id'>[] = [
     justification: 'A very capable open-source model that can be fine-tuned for specific tasks.',
     upvotes: 110,
     downvotes: 12,
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: 'https://images.unsplash.com/photo-1677756119517-756a188d2d94?q=80&w=600&h=400&auto=format&fit=crop',
     submittedAt: new Date('2024-04-01T08:00:00Z'),
   },
 ];
