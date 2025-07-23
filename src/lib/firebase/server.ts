@@ -8,16 +8,12 @@ if (!process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
 }
 
 // The service account key is a JSON string stored in an environment variable.
-// The private_key within this JSON has its newlines stored as literal '\n',
-// which is invalid in a JSON string. We must first replace these with the
-// escaped '\\n' to make the string parsable.
-const serviceAccountString = (process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string).replace(/\n/g, '\\n');
+// It needs to be parsed before being used by the cert function.
+const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
 const serviceAccount = JSON.parse(serviceAccountString);
 
-
-// After parsing, the `private_key` has escaped newlines (\\n). The `cert`
-// function requires literal newlines (\n) to correctly parse the RSA key.
-// We must now un-escape the newlines in the private_key field.
+// The `private_key` from the environment variable has its newlines escaped as "\\n".
+// The `cert` function needs the private key to have literal newlines.
 if (serviceAccount.private_key) {
     serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
 }
