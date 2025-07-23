@@ -27,14 +27,18 @@ export async function submitTool(
   const { url, justification, submittedBy } = validation.data;
 
   try {
+    // This flow is more reliable as it doesn't access the URL directly.
     const metadata = await generateMetadata({ url, justification });
     
     let imageUrl;
     try {
+        // This flow can fail if the website blocks access, so we wrap it.
         const imageResult = await extractImageFromUrl({ url });
         imageUrl = imageResult.imageUrl;
     } catch (imageError) {
-        console.warn("Could not extract image from URL, using placeholder.", imageError);
+        // Log the error but don't fail the entire submission.
+        console.warn(`Could not extract image from URL: ${url}. Proceeding without it.`, imageError);
+        imageUrl = undefined; // Ensure imageUrl is undefined to use placeholder
     }
 
     const newToolData: Omit<Tool, 'id' | 'submittedAt'> = {
