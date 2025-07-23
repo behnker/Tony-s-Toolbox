@@ -4,6 +4,7 @@
 import { z } from "zod";
 import { generateMetadata } from "@/ai/flows/generate-metadata";
 import { extractImageFromUrl } from "@/ai/flows/extract-image-from-url";
+import { extractMetadataFromUrl } from "@/ai/flows/extract-metadata";
 import { addTool, updateToolVotes } from "@/lib/firebase/service";
 import type { Tool } from "@/lib/types";
 import { revalidatePath } from "next/cache";
@@ -24,30 +25,45 @@ export async function submitTool(
   if (!validation.success) {
     return { success: false, error: "Invalid input." };
   }
-  const { url, justification } = validation.data;
+  const { url, justification, submittedBy } = validation.data;
 
   try {
-    const [metadata, image] = await Promise.all([
-      generateMetadata({ url, justification }),
-      extractImageFromUrl({ url }),
-    ]);
-    
+    let metadata;
+    try {
+      // First, try to extract metadata directly from the URL.
+      metadata = await extractMetadataFromUrl({ url });
+    } catch (e) {
+      // If that fails (e.g., site is blocked), fall back to generating metadata.
+      console.warn("Metadata extraction failed, falling back to generation:", e);
+      metadata = await generateMetadata({ url, justification });
+    }
+
     if (!metadata || !metadata.title || !metadata.description) {
-        return { success: false, error: "Could not generate metadata for this tool. The AI may not be familiar with this URL."}
+      return { success: false, error: "Could not retrieve or generate metadata for this tool. The AI may not be familiar with this URL." };
+    }
+    
+    // Image extraction is best-effort.
+    let imageUrl;
+    try {
+      const image = await extractImageFromUrl({ url });
+      imageUrl = image.imageUrl;
+    } catch (e) {
+      console.warn("Image extraction failed, proceeding without an image:", e);
+      imageUrl = undefined;
     }
 
     const newToolData: Omit<Tool, 'id' | 'submittedAt'> = {
-      url: validation.data.url,
+      url: url,
       name: metadata.title,
       description: metadata.description,
       categories: metadata.categories.length > 0 ? metadata.categories : ['general'],
       price: 'Freemium', 
       easeOfUse: 'Beginner', 
-      submittedBy: validation.data.submittedBy,
-      justification: validation.data.justification,
+      submittedBy: submittedBy,
+      justification: justification,
       upvotes: 1,
       downvotes: 0,
-      imageUrl: image.imageUrl,
+      imageUrl: imageUrl,
     };
 
     const savedTool = await addTool(newToolData);
