@@ -10,7 +10,12 @@ if (!process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
 // The service account key is a JSON string stored in an environment variable.
 // It needs to be parsed before being used by the cert function.
 const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-const serviceAccount = JSON.parse(serviceAccountString);
+
+// Sanitize the service account string to handle potential newline issues
+// before parsing. This makes the string valid for JSON.parse().
+const sanitizedServiceAccountString = serviceAccountString.replace(/\n/g, '\\n');
+const serviceAccount = JSON.parse(sanitizedServiceAccountString);
+
 
 // The `private_key` from the environment variable has its newlines escaped as "\\n".
 // The `cert` function needs the private key to have literal newlines.
