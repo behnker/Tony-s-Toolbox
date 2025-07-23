@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -37,9 +38,9 @@ const prompt = ai.definePrompt({
 
 - A concise and accurate title for the tool.
 - A clear, one or two-sentence description of what the tool does.
-- An array of relevant categories (e.g., "image-generation", "developer-tools", "copywriting").
+- An array of relevant categories (e.g., "image-generation", "developer-tools", "copywriting", "diagramming", "whiteboard").
 
-Base your response on your existing knowledge of the tool at the given URL and the user's justification.
+Base your response ONLY on your existing knowledge of the tool at the given URL and the user's justification. Do not attempt to access the URL.
 
 URL: {{{url}}}
 User's Justification: "{{{justification}}}"

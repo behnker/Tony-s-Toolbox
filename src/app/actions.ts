@@ -3,9 +3,7 @@
 
 import { z } from "zod";
 import { generateMetadata } from "@/ai/flows/generate-metadata";
-import { extractImageFromUrl } from "@/ai/flows/extract-image-from-url";
-import { extractMetadataFromUrl } from "@/ai/flows/extract-metadata";
-import { addTool, updateToolVotes } from "@/lib/firebase/service";
+import { addTool } from "@/lib/firebase/service";
 import type { Tool } from "@/lib/types";
 import { revalidatePath } from "next/cache";
 
@@ -28,30 +26,12 @@ export async function submitTool(
   const { url, justification, submittedBy } = validation.data;
 
   try {
-    let metadata;
-    try {
-      // First, try to extract metadata directly from the URL.
-      metadata = await extractMetadataFromUrl({ url });
-    } catch (e) {
-      // If that fails (e.g., site is blocked), fall back to generating metadata.
-      console.warn("Metadata extraction failed, falling back to generation:", e);
-      metadata = await generateMetadata({ url, justification });
-    }
+    const metadata = await generateMetadata({ url, justification });
 
     if (!metadata || !metadata.title || !metadata.description) {
-      return { success: false, error: "Could not retrieve or generate metadata for this tool. The AI may not be familiar with this URL." };
+      return { success: false, error: "The AI could not generate metadata for this tool based on the URL and justification provided. Please try a different URL or a more descriptive justification." };
     }
     
-    // Image extraction is best-effort.
-    let imageUrl;
-    try {
-      const image = await extractImageFromUrl({ url });
-      imageUrl = image.imageUrl;
-    } catch (e) {
-      console.warn("Image extraction failed, proceeding without an image:", e);
-      imageUrl = undefined;
-    }
-
     const newToolData: Omit<Tool, 'id' | 'submittedAt'> = {
       url: url,
       name: metadata.title,
@@ -63,7 +43,7 @@ export async function submitTool(
       justification: justification,
       upvotes: 1,
       downvotes: 0,
-      imageUrl: imageUrl,
+      imageUrl: undefined,
     };
 
     const savedTool = await addTool(newToolData);
