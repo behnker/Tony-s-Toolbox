@@ -1,4 +1,3 @@
-
 import { db } from "./client";
 import { collection, addDoc, getDocs, Timestamp, orderBy, query, doc, updateDoc, increment, serverTimestamp, writeBatch } from "firebase/firestore";
 import type { Tool } from "@/lib/types";
@@ -12,7 +11,7 @@ async function seedDatabase() {
         // The `submittedAt` is now a Date object from initialTools, so no parsing is needed.
         const seedData = {
             ...tool,
-            submittedAt: Timestamp.fromDate(tool.submittedAt as Date),
+            submittedAt: Timestamp.now(),
         };
         batch.set(newDocRef, seedData);
     });
