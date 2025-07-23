@@ -7,7 +7,7 @@ import { AppHeader } from "@/components/header";
 import { ToolCard } from "@/components/tool-card";
 import { Filters, type FilterState, type SortState } from "@/components/filters-and-sorters";
 import type { Tool } from "@/lib/types";
-import { getTools } from "@/lib/firebase/service";
+import { getTools } from "@/app/actions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Timestamp } from "firebase/firestore";

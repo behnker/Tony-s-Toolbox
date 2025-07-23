@@ -3,7 +3,7 @@
 
 import { z } from "zod";
 import { generateMetadata } from "@/ai/flows/generate-metadata";
-import { addTool } from "@/lib/firebase/service";
+import { addTool, updateToolVotes, getTools as getToolsFromDb } from "@/lib/firebase/service";
 import type { Tool } from "@/lib/types";
 import { revalidatePath } from "next/cache";
 
@@ -64,8 +64,11 @@ export async function updateVote({toolId, upvoteIncrement, downvoteIncrement}: {
         revalidatePath('/');
     } catch (error) {
         console.error("Error updating vote:", error);
-        // Optionally, return an error to the client
         return { success: false, error: "Failed to update vote." };
     }
     return { success: true };
+}
+
+export async function getTools(): Promise<Tool[]> {
+    return getToolsFromDb();
 }

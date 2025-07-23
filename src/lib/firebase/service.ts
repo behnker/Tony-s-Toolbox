@@ -1,17 +1,17 @@
-import { db } from "./client";
-import { collection, addDoc, getDocs, Timestamp, orderBy, query, doc, updateDoc, increment, serverTimestamp, writeBatch } from "firebase/firestore";
+
+import { db } from "./server";
+import { collection, addDoc, getDocs, Timestamp, orderBy, query, doc, updateDoc, increment, serverTimestamp, writeBatch, FieldValue } from "firebase-admin/firestore";
 import type { Tool } from "@/lib/types";
 import { initialTools } from "@/lib/data";
 
 async function seedDatabase() {
     const toolsCollection = collection(db, "tools");
-    const batch = writeBatch(db);
+    const batch = db.batch();
     initialTools.forEach((tool) => {
         const newDocRef = doc(toolsCollection);
-        // The `submittedAt` is now a Date object from initialTools, so no parsing is needed.
         const seedData = {
             ...tool,
-            submittedAt: Timestamp.now(),
+            submittedAt: Timestamp.fromDate(tool.submittedAt),
         };
         batch.set(newDocRef, seedData);
     });
@@ -28,23 +28,25 @@ export async function getTools(): Promise<Tool[]> {
     if (toolsSnapshot.empty) {
         console.log("No tools found, seeding initial data.");
         await seedDatabase();
-        // After seeding, fetch the data again to ensure we get the correct format
         toolsSnapshot = await getDocs(q);
     }
 
     const toolsList = toolsSnapshot.docs.map(doc => {
         const data = doc.data();
-        // This is the critical fix:
-        // Ensure submittedAt is a valid Date object, whether it's a Timestamp or already a Date.
-        // This prevents the .toDate() error on a value that is not a Timestamp.
-        const submittedAt = data.submittedAt instanceof Timestamp 
-            ? data.submittedAt.toDate() 
-            : data.submittedAt; // If it's not a timestamp, assume it's a JS Date or other valid format
+        let submittedAt;
+
+        if (data.submittedAt instanceof Timestamp) {
+            submittedAt = data.submittedAt.toDate();
+        } else if (data.submittedAt instanceof Date) {
+            submittedAt = data.submittedAt;
+        } else {
+            submittedAt = new Date();
+        }
 
         return {
             ...data,
             id: doc.id,
-            submittedAt: new Date(submittedAt), // Ensure it is always a JS Date object
+            submittedAt: submittedAt,
         } as Tool;
     });
 
@@ -54,11 +56,9 @@ export async function getTools(): Promise<Tool[]> {
 export async function addTool(tool: Omit<Tool, 'id' | 'submittedAt'>): Promise<Tool> {
     const docRef = await addDoc(collection(db, "tools"), {
         ...tool,
-        submittedAt: serverTimestamp(),
+        submittedAt: FieldValue.serverTimestamp(),
     });
     
-    // The serverTimestamp() will be null on the client until it's processed by the server.
-    // We return a client-side date for optimistic updates. The real date will be fetched on reload.
     return { ...tool, id: docRef.id, submittedAt: new Date() };
 }
 
@@ -67,10 +67,10 @@ export async function updateToolVotes(toolId: string, upvoteIncrement: number, d
   
   const updateData: { [key: string]: any } = {};
   if (upvoteIncrement !== 0) {
-    updateData.upvotes = increment(upvoteIncrement);
+    updateData.upvotes = FieldValue.increment(upvoteIncrement);
   }
   if (downvoteIncrement !== 0) {
-    updateData.downvotes = increment(downvoteIncrement);
+    updateData.downvotes = FieldValue.increment(downvoteIncrement);
   }
 
   if (Object.keys(updateData).length > 0) {
