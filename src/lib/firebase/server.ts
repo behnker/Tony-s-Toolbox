@@ -4,7 +4,7 @@ import { getFirestore } from "firebase-admin/firestore";
 import "server-only";
 
 if (!process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
-    throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY is not set. Please add it to your .env file.');
+    throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY is not set. Please add it to your .env.local file.');
 }
 
 const serviceAccountString = (process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string).replace(/\\n/g, '\\\\n');
