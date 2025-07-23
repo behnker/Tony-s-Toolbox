@@ -1,4 +1,3 @@
-
 'use server';
 
 import { initializeApp, getApps, getApp, cert } from "firebase-admin/app";
@@ -8,16 +7,13 @@ if (!process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
     throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY is not set. Please add it to your .env file.');
 }
 
-// 1. Sanitize the raw string from the environment variable to make it valid JSON.
-//    The private key from the .env file has literal newlines, which are invalid in a JSON string.
-//    We replace them with the escaped version `\\n`.
-const sanitizedKey = (process.env.FIREBASE_SERVICE_ACCOUNT_KEY).replace(/\n/g, '\\n');
+// The service account key is a JSON string stored in an environment variable.
+// The private_key within this JSON has its newlines escaped as "\\n".
+// We first parse the entire JSON string, then un-escape the newlines in the
+// private_key so the `cert` function can process it correctly.
 
-// 2. Parse the sanitized string into a JavaScript object.
-const serviceAccount = JSON.parse(sanitizedKey);
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string);
 
-// 3. The `cert` function needs the private key to have literal newlines, not escaped ones.
-//    So, we un-escape the newlines in the `private_key` field.
 if (serviceAccount.private_key) {
     serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
 }
