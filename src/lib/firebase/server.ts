@@ -8,11 +8,14 @@ if (!process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
     throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY is not set. Please add it to your .env file.');
 }
 
-const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-const serviceAccount = JSON.parse(serviceAccountString);
+// The raw string from the environment variable may contain literal newlines.
+// 1. Sanitize the string to make it valid JSON by escaping the newlines.
+const sanitizedKey = (process.env.FIREBASE_SERVICE_ACCOUNT_KEY).replace(/\n/g, '\\n');
+const serviceAccount = JSON.parse(sanitizedKey);
 
-// The `private_key` from the environment variable has its newlines escaped as "\\n".
-// The `cert` function needs the private key to have literal newlines.
+
+// 2. The `cert` function needs the private key to have literal newlines.
+//    So, un-escape the newlines in the private_key field.
 if (serviceAccount.private_key) {
     serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
 }
