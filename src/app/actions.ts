@@ -2,7 +2,8 @@
 "use server";
 
 import { z } from "zod";
-import { extractMetadata } from "@/ai/flows/extract-metadata";
+import { generateMetadata } from "@/ai/flows/generate-metadata";
+import { extractImageFromUrl } from "@/ai/flows/extract-image-from-url";
 import { addTool, updateToolVotes, getTools as getToolsFromDb } from "@/lib/firebase/service";
 import type { Tool } from "@/lib/types";
 import { revalidatePath } from "next/cache";
@@ -26,7 +27,15 @@ export async function submitTool(
   const { url, justification, submittedBy } = validation.data;
 
   try {
-    const metadata = await extractMetadata({ url });
+    const metadata = await generateMetadata({ url, justification });
+    
+    let imageUrl;
+    try {
+        const imageResult = await extractImageFromUrl({ url });
+        imageUrl = imageResult.imageUrl;
+    } catch (imageError) {
+        console.warn("Could not extract image from URL, using placeholder.", imageError);
+    }
 
     const newToolData: Omit<Tool, 'id' | 'submittedAt'> = {
       url: url,
@@ -39,7 +48,7 @@ export async function submitTool(
       justification: justification,
       upvotes: 1,
       downvotes: 0,
-      imageUrl: metadata.imageUrl,
+      imageUrl: imageUrl,
     };
 
     const savedTool = await addTool(newToolData);

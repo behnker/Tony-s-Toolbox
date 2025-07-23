@@ -20,7 +20,7 @@ export type GenerateMetadataInput = z.infer<typeof GenerateMetadataInputSchema>;
 const GenerateMetadataOutputSchema = z.object({
     title: z.string().describe('The name of the tool.'),
     description: z.string().describe('A short, clear description of the tool.'),
-    categories: z.array(z.string()).describe('An array of relevant categories for the tool.'),
+    categories: z.array(z.string()).describe('An array of relevant categories for the tool (e.g., "image-generation", "developer-tools", "copywriting", "diagramming", "whiteboard").'),
 });
 export type GenerateMetadataOutput = z.infer<typeof GenerateMetadataOutputSchema>;
 
