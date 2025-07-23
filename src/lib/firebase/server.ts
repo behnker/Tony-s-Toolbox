@@ -4,6 +4,7 @@ import serviceAccountJson from '../../../serviceAccountKey.json';
 
 const serviceAccount = serviceAccountJson as ServiceAccount;
 
+// This check is crucial to ensure the private key is correctly formatted.
 if (serviceAccount.private_key) {
     serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
 }
