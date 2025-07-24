@@ -7,10 +7,12 @@
  * - GenerateToolMetadataInput - The input type for the generateToolMetadata function.
  * - GenerateToolMetadataOutput - The return type for the generateToolMetadata function.
  */
+import {config} from 'dotenv';
+config();
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import {getWebsiteContent, WebsiteContentSchema} from '@/lib/tools';
+import {getWebsiteContent} from '@/lib/tools';
 import { googleAI } from '@genkit-ai/googleai';
 
 const GenerateToolMetadataInputSchema = z.object({
@@ -38,7 +40,12 @@ const prompt = ai.definePrompt({
     schema: z.object({
       url: z.string().url(),
       justification: z.string(),
-      websiteContent: WebsiteContentSchema.shape.output,
+      websiteContent: z.object({
+        title: z.string(),
+        description: z.string(),
+        imageUrl: z.string().url().optional(),
+        error: z.string().optional(),
+      }),
     }),
   },
   output: {schema: GenerateToolMetadataOutputSchema},

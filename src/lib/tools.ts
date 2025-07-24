@@ -7,25 +7,19 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-const WebsiteContentSchema = z.object({
-    input: z.object({
+export const getWebsiteContent = ai.defineTool(
+  {
+    name: 'getWebsiteContent',
+    description: 'Fetches the title, meta description, and OpenGraph image of a website.',
+    inputSchema: z.object({
       url: z.string().url().describe('The URL of the website to fetch.'),
     }),
-    output: z.object({
+    outputSchema: z.object({
       title: z.string().describe('The title of the website.'),
       description: z.string().describe('The meta description of the website.'),
       imageUrl: z.string().url().optional().describe('The OpenGraph image URL of the website.'),
       error: z.string().optional().describe('An error message if fetching failed.'),
     }),
-});
-export { WebsiteContentSchema };
-
-export const getWebsiteContent = ai.defineTool(
-  {
-    name: 'getWebsiteContent',
-    description: 'Fetches the title, meta description, and OpenGraph image of a website.',
-    inputSchema: WebsiteContentSchema.shape.input,
-    outputSchema: WebsiteContentSchema.shape.output,
   },
   async ({url}) => {
     try {
