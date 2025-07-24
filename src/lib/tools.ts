@@ -1,5 +1,3 @@
-
-'use server';
 /**
  * @fileOverview A Genkit tool for fetching website content.
  *
@@ -9,7 +7,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const WebsiteContentSchema = z.object({
+const WebsiteContentSchema = z.object({
     input: z.object({
       url: z.string().url().describe('The URL of the website to fetch.'),
     }),
@@ -20,7 +18,7 @@ export const WebsiteContentSchema = z.object({
       error: z.string().optional().describe('An error message if fetching failed.'),
     }),
 });
-
+export { WebsiteContentSchema };
 
 export const getWebsiteContent = ai.defineTool(
   {
@@ -58,7 +56,7 @@ export const getWebsiteContent = ai.defineTool(
         try {
           // Resolve relative favicon URL to absolute
           const faviconUrl = new URL(faviconMatch[1], url);
-          imageUrl = faviconUrl.href;
+imageUrl = faviconUrl.href;
         } catch (e) {
           // Ignore invalid favicon URLs
         }
