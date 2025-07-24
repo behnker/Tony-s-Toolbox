@@ -16,22 +16,25 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
   } from "@/components/ui/dialog"
 import type { Tool } from "@/lib/types";
-import { ArrowUpRight, Calendar, Coins, PersonStanding, Sparkles, Star, ArrowBigUp, ArrowBigDown, User } from "lucide-react";
+import { ArrowUpRight, Calendar, Coins, PersonStanding, Sparkles, Star, ArrowBigUp, ArrowBigDown, User, RefreshCw, Loader2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
-import { updateVote } from '@/app/actions';
+import { updateVote, refreshTool } from '@/app/actions';
 import { Timestamp } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
 
 
 type ToolCardProps = {
   tool: Tool;
   onVoteChange: (toolId: string, newUpvotes: number, newDownvotes: number) => void;
+  onToolUpdate: (tool: Tool) => void;
 };
 
 function getImageHint(categories: string[]): string {
@@ -51,8 +54,33 @@ function getFormattedDate(date: Date | Timestamp | undefined): string {
     return formatDistanceToNow(dateObj, { addSuffix: true });
 }
 
-export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
+export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
   const [vote, setVote] = React.useState<'up' | 'down' | null>(null);
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
+  const { toast } = useToast();
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    const result = await refreshTool({
+        toolId: tool.id,
+        url: tool.url,
+        justification: tool.justification || 'Manual refresh request'
+    });
+    setIsRefreshing(false);
+    if (result.success && result.data) {
+        onToolUpdate(result.data);
+        toast({
+            title: "Update Successful!",
+            description: result.message,
+        });
+    } else {
+        toast({
+            variant: "destructive",
+            title: "Update Failed",
+            description: result.error,
+        });
+    }
+  };
 
   const handleUpvote = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -185,6 +213,16 @@ export function ToolCard({ tool, onVoteChange }: ToolCardProps) {
                     </div>
                 )}
             </div>
+            <DialogFooter>
+                <Button variant="outline" onClick={handleRefresh} disabled={isRefreshing}>
+                    {isRefreshing ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                    )}
+                    Refresh Data
+                </Button>
+            </DialogFooter>
         </DialogContent>
     </Dialog>
   );

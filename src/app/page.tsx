@@ -38,6 +38,12 @@ export default function Home() {
     fetchTools();
   }, []);
 
+  const handleToolUpdate = (updatedTool: Tool) => {
+    setTools((prevTools) => 
+      prevTools.map(tool => tool.id === updatedTool.id ? updatedTool : tool)
+    );
+  };
+
   const handleToolSubmitted = (submittedTool: Tool) => {
     setTools((prevTools) => {
       const existingToolIndex = prevTools.findIndex(tool => tool.id === submittedTool.id);
@@ -167,7 +173,7 @@ export default function Home() {
         ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredAndSortedTools.map((tool) => (
-                    <ToolCard key={tool.id} tool={tool} onVoteChange={handleVoteChange} />
+                    <ToolCard key={tool.id} tool={tool} onVoteChange={handleVoteChange} onToolUpdate={handleToolUpdate} />
                 ))}
             </div>
         )}

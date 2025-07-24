@@ -96,3 +96,31 @@ export async function updateVote({toolId, upvoteIncrement, downvoteIncrement}: {
 export async function getTools(): Promise<Tool[]> {
     return getToolsFromDb();
 }
+
+export async function refreshTool(
+  { toolId, url, justification }: { toolId: string; url: string; justification: string }
+): Promise<{ success: boolean; data?: Tool; error?: string; message?: string }> {
+  try {
+    // 1. Fetch new metadata from the AI flow
+    const metadata = await generateToolMetadata({ url, justification: justification || "Manual data refresh" });
+
+    // 2. Prepare the data for an update
+    const updatedToolData: Partial<Omit<Tool, 'id' | 'submittedAt'>> = {
+      name: metadata.title || undefined,
+      description: metadata.description || undefined,
+      categories: metadata.categories && metadata.categories.length > 0 ? metadata.categories : undefined,
+      ...(metadata.imageUrl && { imageUrl: metadata.imageUrl }),
+    };
+
+    // 3. Update the tool in the database
+    const updatedTool = await updateTool(toolId, updatedToolData);
+    revalidatePath('/');
+    
+    return { success: true, data: updatedTool, message: `${updatedTool.name} has been successfully updated.` };
+
+  } catch (error) {
+    console.error("Error refreshing tool:", error);
+    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+    return { success: false, error: `Failed to refresh tool data. Reason: ${errorMessage}` };
+  }
+}
