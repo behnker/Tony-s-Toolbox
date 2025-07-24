@@ -10,6 +10,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import {getWebsiteContent} from '@/lib/tools';
+import { googleAI } from '@genkit-ai/googleai';
 
 const GenerateToolMetadataInputSchema = z.object({
   url: z.string().url().describe('The URL of the tool to describe.'),
@@ -35,6 +36,7 @@ const prompt = ai.definePrompt({
   input: {schema: GenerateToolMetadataInputSchema},
   output: {schema: GenerateToolMetadataOutputSchema},
   tools: [getWebsiteContent],
+  model: googleAI.model('gemini-1.5-flash-latest'),
   prompt: `You are an expert at describing AI tools for a directory.
 You have access to a tool 'getWebsiteContent' which can fetch the title and meta description of a website given a URL.
 
