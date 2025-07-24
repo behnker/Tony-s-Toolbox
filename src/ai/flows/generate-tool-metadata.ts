@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A flow to generate metadata for a tool by fetching and analyzing its website content.
@@ -9,7 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import {getWebsiteContent} from '@/lib/tools';
+import {getWebsiteContent, WebsiteContentSchema} from '@/lib/tools';
 import { googleAI } from '@genkit-ai/googleai';
 
 const GenerateToolMetadataInputSchema = z.object({
@@ -33,24 +34,31 @@ export async function generateToolMetadata(input: GenerateToolMetadataInput): Pr
 
 const prompt = ai.definePrompt({
   name: 'generateToolMetadataPrompt',
-  input: {schema: GenerateToolMetadataInputSchema},
+  input: {
+    schema: z.object({
+      url: z.string().url(),
+      justification: z.string(),
+      websiteContent: WebsiteContentSchema.shape.output,
+    }),
+  },
   output: {schema: GenerateToolMetadataOutputSchema},
-  tools: [getWebsiteContent],
   model: googleAI.model('gemini-1.5-flash-latest'),
   prompt: `You are an expert at describing AI tools for a directory.
-You have access to a tool 'getWebsiteContent' which can fetch the title and meta description of a website given a URL.
 
-Your task is to generate the following information for the tool at the given URL:
-- A concise and accurate title for the tool. Use the title from the website content if available.
-- A clear, one or two-sentence description of what the tool does. Use the description from the website content if available.
+Your task is to generate the following information for the tool at the given URL, using the provided website content:
+- A concise and accurate title for the tool. Use the title from the website content.
+- A clear, one or two-sentence description of what the tool does. Use the description from the website content.
 - An array of up to 3 relevant categories (e.g., "image-generation", "developer-tools", "copywriting", "diagramming", "whiteboard").
-- A URL for a relevant image, like a logo, banner, or screenshot.
+- The URL for a relevant image, like a logo, banner, or screenshot. Use the imageUrl from the website content.
 
-If you can access the website content, base your response primarily on that.
-If you cannot access the website, base your response on your existing knowledge of the tool at the given URL and the user's justification.
+If the provided website content is sparse or indicates an error, base your response on your existing knowledge of the tool at the given URL and the user's justification.
 
 URL: {{{url}}}
 User's Justification: "{{{justification}}}"
+Website Content:
+Title: {{{websiteContent.title}}}
+Description: {{{websiteContent.description}}}
+Image URL: {{{websiteContent.imageUrl}}}
 `,
 });
 
@@ -61,7 +69,14 @@ const generateToolMetadataFlow = ai.defineFlow(
     outputSchema: GenerateToolMetadataOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
+    // We call the tool directly here instead of letting the LLM do it.
+    // This is more efficient as we always need this information.
+    const websiteContent = await getWebsiteContent(input);
+    
+    const {output} = await prompt({
+      ...input,
+      websiteContent,
+    });
     return output!;
   }
 );
