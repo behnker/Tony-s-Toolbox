@@ -25,7 +25,7 @@ const GenerateToolMetadataOutputSchema = z.object({
   title: z.string().describe('The name of the tool.'),
   description: z.string().describe('A short, clear description of the tool.'),
   categories: z.array(z.string()).describe('An array of relevant categories for the tool (e.g., "image-generation", "developer-tools", "copywriting", "diagramming", "whiteboard").'),
-  imageUrl: z.string().url().nullable().describe('The URL of a relevant image (logo, banner, screenshot) for the tool.'),
+  imageUrl: z.string().nullable().describe('The URL of a relevant image (logo, banner, screenshot) for the tool.'),
 });
 export type GenerateToolMetadataOutput = z.infer<typeof GenerateToolMetadataOutputSchema>;
 
@@ -95,4 +95,3 @@ const generateToolMetadataFlow = ai.defineFlow(
     return output;
   }
 );
-

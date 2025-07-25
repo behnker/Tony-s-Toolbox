@@ -38,7 +38,7 @@ export async function submitTool(
         title: new URL(url).hostname,
         description: justification,
         categories: ['general'],
-        imageUrl: undefined,
+        imageUrl: null,
     };
   }
 
@@ -121,7 +121,9 @@ export async function refreshTool(
       // If there's no new data, don't update
       if (Object.keys(updatedToolData).length === 1 && 'imageUrl' in updatedToolData && !updatedToolData.imageUrl) {
         const existingTool = await getToolByUrl(url);
-        return { success: true, data: existingTool || undefined, message: "Tool is already up to date." };
+        if (existingTool && !existingTool.imageUrl) {
+            return { success: true, data: existingTool, message: "Tool is already up to date." };
+        }
       }
   
       updatedToolData.lastUpdatedAt = Timestamp.now().toDate();
@@ -138,4 +140,3 @@ export async function refreshTool(
       return { success: false, error: `Failed to refresh tool data. Reason: ${errorMessage}` };
     }
   }
-  
