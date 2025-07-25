@@ -106,7 +106,7 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
     }
   };
 
-  const handleUpload = (file: File) => {
+  const handleUpload = React.useCallback((file: File) => {
     if (!file) return;
 
     const storageRef = ref(storage, `tool-images/${tool.id}/${file.name}`);
@@ -147,7 +147,7 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
             }
         }
     );
-  };
+  }, [tool.id, onToolUpdate, toast]);
 
 
   const handleUpvote = async (e: React.MouseEvent) => {
