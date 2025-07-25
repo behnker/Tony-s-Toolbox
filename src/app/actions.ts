@@ -135,6 +135,7 @@ export async function refreshTool(
       if (metadata.description) updatedToolData.description = metadata.description;
       if (metadata.categories && metadata.categories.length > 0) updatedToolData.categories = metadata.categories;
       
+      // Only update the image if a valid one is found, otherwise keep the old one.
       if (isValidUrl(metadata.imageUrl)) {
         updatedToolData.imageUrl = metadata.imageUrl;
       }
@@ -159,5 +160,18 @@ export async function refreshTool(
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
       return { success: false, error: `Failed to refresh tool data. Reason: ${errorMessage}` };
     }
-  }
+}
 
+export async function updateToolImage({ toolId, imageUrl }: { toolId: string, imageUrl: string }): Promise<{ success: boolean; data?: Tool; error?: string }> {
+    try {
+        const updatedTool = await updateTool(toolId, { 
+            imageUrl,
+            lastUpdatedAt: Timestamp.now().toDate() 
+        });
+        revalidatePath('/');
+        return { success: true, data: updatedTool };
+    } catch (error) {
+        console.error("Error updating tool image:", error);
+        return { success: false, error: "Failed to update the tool image in the database." };
+    }
+}
