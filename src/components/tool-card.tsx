@@ -131,71 +131,6 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
     await updateVote({ toolId: currentTool.id, upvoteIncrement, downvoteIncrement });
   };
     
-  const dialogContent = React.useMemo(() => (
-    <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-            <div className="aspect-video relative mb-4 rounded-lg overflow-hidden">
-                <Image 
-                    src={currentTool.imageUrl || 'https://placehold.co/600x400.png'} 
-                    alt={currentTool.name} 
-                    fill
-                    className="object-cover"
-                    unoptimized
-                />
-            </div>
-            <DialogTitle className="font-headline text-2xl">{currentTool.name}</DialogTitle>
-            <DialogDescription>
-                <a href={currentTool.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
-                    {currentTool.url} <ArrowUpRight className="h-4 w-4" />
-                </a>
-            </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4 py-4">
-            <p>{currentTool.description}</p>
-            <div className="flex flex-wrap gap-2">
-                {currentTool.categories.map((category) => (
-                <Badge key={category} variant="secondary">
-                    {category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ')}
-                </Badge>
-                ))}
-            </div>
-            <div className="grid grid-cols-2 gap-4 text-sm pt-4">
-                <div className="flex items-center gap-2 text-muted-foreground"><Coins className="h-4 w-4 text-primary" /> Price: <span className="font-semibold text-foreground">{currentTool.price}</span></div>
-                <div className="flex items-center gap-2 text-muted-foreground"><PersonStanding className="h-4 w-4 text-primary" /> Ease of Use: <span className="font-semibold text-foreground">{currentTool.easeOfUse}</span></div>
-                <div className="flex items-center gap-2 text-muted-foreground"><ArrowBigUp className="h-4 w-4 text-primary" /> Upvotes: <span className="font-semibold text-foreground">{currentTool.upvotes}</span></div>
-                <div className="flex items-center gap-2 text-muted-foreground"><ArrowBigDown className="h-4 w-4 text-primary" /> Downvotes: <span className="font-semibold text-foreground">{currentTool.downvotes}</span></div>
-                <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="h-4 w-4 text-primary" /> Submitted: <span className="font-semibold text-foreground">{getFormattedDate(currentTool.submittedAt)}</span></div>
-            </div>
-            {currentTool.submittedBy && currentTool.justification && (
-                <div className="pt-4 border-t">
-                    <h4 className="font-semibold flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary" /> Community Recommendation</h4>
-                    <blockquote className="mt-2 border-l-2 pl-4 italic text-muted-foreground">
-                        "{currentTool.justification}"
-                    </blockquote>
-                    <div className="text-right text-sm font-medium text-foreground flex items-center justify-end gap-2 mt-2">
-                        <User className="h-4 w-4" />
-                        <span>- {currentTool.submittedBy}</span>
-                    </div>
-                </div>
-            )}
-             <div className="pt-4 border-t">
-                <h4 className="font-semibold">Manage Image</h4>
-                <ImageUploader toolId={currentTool.id} onUploadComplete={handleUploadComplete} />
-            </div>
-        </div>
-        <DialogFooter>
-            <Button variant="outline" onClick={handleRefresh} disabled={isRefreshing}>
-                {isRefreshing ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                )}
-                Refresh Data
-            </Button>
-        </DialogFooter>
-    </DialogContent>
-  ), [currentTool, isRefreshing, handleRefresh, handleUploadComplete]);
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
@@ -245,7 +180,68 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
                 </CardFooter>
             </Card>
         </DialogTrigger>
-        {dialogContent}
+        <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+                <div className="aspect-video relative mb-4 rounded-lg overflow-hidden">
+                    <Image 
+                        src={currentTool.imageUrl || 'https://placehold.co/600x400.png'} 
+                        alt={currentTool.name} 
+                        fill
+                        className="object-cover"
+                        unoptimized
+                    />
+                </div>
+                <DialogTitle className="font-headline text-2xl">{currentTool.name}</DialogTitle>
+                <DialogDescription>
+                    <a href={currentTool.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
+                        {currentTool.url} <ArrowUpRight className="h-4 w-4" />
+                    </a>
+                </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+                <p>{currentTool.description}</p>
+                <div className="flex flex-wrap gap-2">
+                    {currentTool.categories.map((category) => (
+                    <Badge key={category} variant="secondary">
+                        {category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ')}
+                    </Badge>
+                    ))}
+                </div>
+                <div className="grid grid-cols-2 gap-4 text-sm pt-4">
+                    <div className="flex items-center gap-2 text-muted-foreground"><Coins className="h-4 w-4 text-primary" /> Price: <span className="font-semibold text-foreground">{currentTool.price}</span></div>
+                    <div className="flex items-center gap-2 text-muted-foreground"><PersonStanding className="h-4 w-4 text-primary" /> Ease of Use: <span className="font-semibold text-foreground">{currentTool.easeOfUse}</span></div>
+                    <div className="flex items-center gap-2 text-muted-foreground"><ArrowBigUp className="h-4 w-4 text-primary" /> Upvotes: <span className="font-semibold text-foreground">{currentTool.upvotes}</span></div>
+                    <div className="flex items-center gap-2 text-muted-foreground"><ArrowBigDown className="h-4 w-4 text-primary" /> Downvotes: <span className="font-semibold text-foreground">{currentTool.downvotes}</span></div>
+                    <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="h-4 w-4 text-primary" /> Submitted: <span className="font-semibold text-foreground">{getFormattedDate(currentTool.submittedAt)}</span></div>
+                </div>
+                {currentTool.submittedBy && currentTool.justification && (
+                    <div className="pt-4 border-t">
+                        <h4 className="font-semibold flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary" /> Community Recommendation</h4>
+                        <blockquote className="mt-2 border-l-2 pl-4 italic text-muted-foreground">
+                            "{currentTool.justification}"
+                        </blockquote>
+                        <div className="text-right text-sm font-medium text-foreground flex items-center justify-end gap-2 mt-2">
+                            <User className="h-4 w-4" />
+                            <span>- {currentTool.submittedBy}</span>
+                        </div>
+                    </div>
+                )}
+                 <div className="pt-4 border-t">
+                    <h4 className="font-semibold">Manage Image</h4>
+                    <ImageUploader toolId={currentTool.id} onUploadComplete={handleUploadComplete} />
+                </div>
+            </div>
+            <DialogFooter>
+                <Button variant="outline" onClick={handleRefresh} disabled={isRefreshing}>
+                    {isRefreshing ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                    )}
+                    Refresh Data
+                </Button>
+            </DialogFooter>
+        </DialogContent>
     </Dialog>
   );
 }
