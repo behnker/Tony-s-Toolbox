@@ -6,7 +6,7 @@ import { generateToolMetadata } from "@/ai/flows/generate-tool-metadata";
 import { addTool, updateToolVotes, getTools as getToolsFromDb, getToolByUrl, updateTool } from "@/lib/firebase/service";
 import type { Tool } from "@/lib/types";
 import { revalidatePath } from "next/cache";
-import { Timestamp } from "firebase/firestore";
+import { Timestamp } from "firebase-admin/firestore";
 
 const formSchema = z.object({
   url: z.string().url(),
@@ -56,7 +56,7 @@ export async function submitTool(
         return { success: true, data: existingTool, message: `${existingTool.name} is already up-to-date.` };
       }
 
-      updatedToolData.lastUpdatedAt = new Date();
+      updatedToolData.lastUpdatedAt = Timestamp.now();
       
       const updatedTool = await updateTool(existingTool.id, updatedToolData);
       revalidatePath('/');
