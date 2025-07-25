@@ -112,7 +112,14 @@ export async function getToolByUrl(url: string): Promise<Tool | null> {
 export async function updateTool(toolId: string, toolData: Partial<Omit<Tool, 'id'>>): Promise<Tool> {
     const toolRef = db.collection("tools").doc(toolId);
     
-    const serializableData = { ...toolData };
+    // Create a mutable copy and filter out undefined values
+    const serializableData: { [key: string]: any } = {};
+    for (const [key, value] of Object.entries(toolData)) {
+      if (value !== undefined) {
+        serializableData[key] = value;
+      }
+    }
+    
     if (serializableData.lastUpdatedAt instanceof Date) {
         serializableData.lastUpdatedAt = Timestamp.fromDate(serializableData.lastUpdatedAt);
     }
