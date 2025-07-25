@@ -27,7 +27,6 @@ import { formatDistanceToNow } from "date-fns";
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { updateVote, refreshTool } from '@/app/actions';
-import { Timestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
 
@@ -48,9 +47,10 @@ function getImageHint(categories: string[]): string {
     return 'abstract background';
 }
 
-function getFormattedDate(date: Date | Timestamp | undefined): string {
+function getFormattedDate(date: Date | undefined): string {
     if (!date) return '';
-    const dateObj = date instanceof Timestamp ? date.toDate() : date;
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) return '';
     return formatDistanceToNow(dateObj, { addSuffix: true });
 }
 

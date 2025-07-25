@@ -1,6 +1,4 @@
 
-import type { Timestamp } from 'firebase/firestore';
-
 export type Price = 'Free' | 'Freemium' | 'Paid';
 export type EaseOfUse = 'Beginner' | 'Intermediate' | 'Expert';
 
@@ -14,8 +12,8 @@ export type Tool = {
   easeOfUse: EaseOfUse;
   submittedBy?: string;
   justification?: string;
-  submittedAt: Date | Timestamp;
-  lastUpdatedAt?: Date | Timestamp;
+  submittedAt: Date;
+  lastUpdatedAt?: Date;
   upvotes: number;
   downvotes: number;
   imageUrl?: string;

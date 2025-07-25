@@ -56,7 +56,7 @@ export async function submitTool(
         return { success: true, data: existingTool, message: `${existingTool.name} is already up-to-date.` };
       }
 
-      updatedToolData.lastUpdatedAt = Timestamp.now();
+      updatedToolData.lastUpdatedAt = Timestamp.now().toDate();
       
       const updatedTool = await updateTool(existingTool.id, updatedToolData);
       revalidatePath('/');
@@ -120,10 +120,11 @@ export async function refreshTool(
   
       // If there's no new data, don't update
       if (Object.keys(updatedToolData).length === 0) {
-        return { success: true, message: "Tool is already up to date." };
+        const existingTool = await getToolByUrl(url);
+        return { success: true, data: existingTool || undefined, message: "Tool is already up to date." };
       }
   
-      updatedToolData.lastUpdatedAt = Timestamp.now();
+      updatedToolData.lastUpdatedAt = Timestamp.now().toDate();
   
       // 3. Update the tool in the database
       const updatedTool = await updateTool(toolId, updatedToolData);

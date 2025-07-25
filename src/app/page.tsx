@@ -10,7 +10,6 @@ import type { Tool } from "@/lib/types";
 import { getTools } from "@/app/actions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Timestamp } from "firebase/firestore";
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
@@ -92,14 +91,9 @@ export default function Home() {
         return (a.upvotes - a.downvotes) - (b.upvotes - b.downvotes);
       }
       if (sortBy === "newest") {
-        const toDate = (date: Date | Timestamp | undefined): Date => {
-            if (!date) return new Date(0);
-            if (date instanceof Timestamp) return date.toDate();
-            return new Date(date);
-        }
-        const dateA = toDate(a.submittedAt);
-        const dateB = toDate(b.submittedAt);
-        return dateB.getTime() - dateA.getTime();
+        const dateA = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
+        const dateB = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
+        return dateB - dateA;
       }
       return 0;
     });

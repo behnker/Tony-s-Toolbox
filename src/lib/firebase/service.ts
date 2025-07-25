@@ -17,6 +17,33 @@ async function seedDatabase() {
     await batch.commit();
 }
 
+function convertDocToTool(doc: FirebaseFirestore.DocumentSnapshot): Tool {
+    const data = doc.data()!;
+    
+    const convertTimestamp = (ts: any): Date | undefined => {
+        if (ts instanceof Timestamp) return ts.toDate();
+        if (ts instanceof Date) return ts;
+        return undefined;
+    }
+
+    return {
+        id: doc.id,
+        url: data.url,
+        name: data.name,
+        description: data.description,
+        categories: data.categories,
+        price: data.price,
+        easeOfUse: data.easeOfUse,
+        submittedBy: data.submittedBy,
+        justification: data.justification,
+        upvotes: data.upvotes,
+        downvotes: data.downvotes,
+        imageUrl: data.imageUrl,
+        submittedAt: convertTimestamp(data.submittedAt) || new Date(),
+        lastUpdatedAt: convertTimestamp(data.lastUpdatedAt),
+    };
+}
+
 
 export async function getTools(): Promise<Tool[]> {
     const toolsCollection = db.collection("tools");
@@ -30,24 +57,7 @@ export async function getTools(): Promise<Tool[]> {
         toolsSnapshot = await q.get();
     }
 
-    const toolsList = toolsSnapshot.docs.map(doc => {
-        const data = doc.data();
-        let submittedAt;
-
-        if (data.submittedAt instanceof Timestamp) {
-            submittedAt = data.submittedAt.toDate();
-        } else if (data.submittedAt instanceof Date) {
-            submittedAt = data.submittedAt;
-        } else {
-            submittedAt = new Date();
-        }
-
-        return {
-            ...data,
-            id: doc.id,
-            submittedAt: submittedAt,
-        } as Tool;
-    });
+    const toolsList = toolsSnapshot.docs.map(convertDocToTool);
 
     return toolsList;
 }
@@ -58,13 +68,7 @@ export async function addTool(tool: Omit<Tool, 'id' | 'submittedAt'>): Promise<T
         submittedAt: FieldValue.serverTimestamp(),
     });
     const newDoc = await docRef.get();
-    const data = newDoc.data();
-
-    return { 
-        ...(data as Omit<Tool, 'id' | 'submittedAt'>),
-        id: docRef.id, 
-        submittedAt: (data?.submittedAt as Timestamp).toDate() 
-    };
+    return convertDocToTool(newDoc);
 }
 
 
@@ -94,25 +98,13 @@ export async function getToolByUrl(url: string): Promise<Tool | null> {
     }
 
     const doc = snapshot.docs[0];
-    const data = doc.data();
-
-    return {
-        ...data,
-        id: doc.id,
-        submittedAt: (data.submittedAt as Timestamp).toDate(),
-    } as Tool;
+    return convertDocToTool(doc);
 }
 
-export async function updateTool(toolId: string, toolData: Partial<Omit<Tool, 'id'|'submittedAt'>>): Promise<Tool> {
+export async function updateTool(toolId: string, toolData: Partial<Omit<Tool, 'id'>>): Promise<Tool> {
     const toolRef = db.collection("tools").doc(toolId);
     await toolRef.update(toolData);
     
     const updatedDoc = await toolRef.get();
-    const data = updatedDoc.data();
-
-    return {
-        ...data,
-        id: updatedDoc.id,
-        submittedAt: (data?.submittedAt as Timestamp).toDate(),
-    } as Tool;
+    return convertDocToTool(updatedDoc);
 }
