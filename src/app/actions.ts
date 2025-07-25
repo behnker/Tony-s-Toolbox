@@ -6,6 +6,7 @@ import { generateToolMetadata } from "@/ai/flows/generate-tool-metadata";
 import { addTool, updateToolVotes, getTools as getToolsFromDb, getToolByUrl, updateTool } from "@/lib/firebase/service";
 import type { Tool } from "@/lib/types";
 import { revalidatePath } from "next/cache";
+import { Timestamp } from "firebase/firestore";
 
 const formSchema = z.object({
   url: z.string().url(),
@@ -44,13 +45,18 @@ export async function submitTool(
   try {
     if (existingTool) {
       // Update existing tool
-      const updatedToolData: Partial<Omit<Tool, 'id' | 'submittedAt'>> = {
-        name: metadata.title || existingTool.name,
-        description: metadata.description || existingTool.description,
-        categories: metadata.categories && metadata.categories.length > 0 ? metadata.categories : existingTool.categories,
-        ...(metadata.imageUrl && { imageUrl: metadata.imageUrl }),
-        // You might want to update other fields as well, e.g., who last updated it.
-      };
+      const updatedToolData: Partial<Omit<Tool, 'id' | 'submittedAt'>> = {};
+
+      if (metadata.title) updatedToolData.name = metadata.title;
+      if (metadata.description) updatedToolData.description = metadata.description;
+      if (metadata.categories && metadata.categories.length > 0) updatedToolData.categories = metadata.categories;
+      if (metadata.imageUrl) updatedToolData.imageUrl = metadata.imageUrl;
+      
+      if (Object.keys(updatedToolData).length === 0) {
+        return { success: true, data: existingTool, message: `${existingTool.name} is already up-to-date.` };
+      }
+
+      updatedToolData.lastUpdatedAt = new Date();
       
       const updatedTool = await updateTool(existingTool.id, updatedToolData);
       revalidatePath('/');
@@ -98,29 +104,37 @@ export async function getTools(): Promise<Tool[]> {
 }
 
 export async function refreshTool(
-  { toolId, url, justification }: { toolId: string; url: string; justification: string }
-): Promise<{ success: boolean; data?: Tool; error?: string; message?: string }> {
-  try {
-    // 1. Fetch new metadata from the AI flow
-    const metadata = await generateToolMetadata({ url, justification: justification || "Manual data refresh" });
-
-    // 2. Prepare the data for an update
-    const updatedToolData: Partial<Omit<Tool, 'id' | 'submittedAt'>> = {
-      name: metadata.title || undefined,
-      description: metadata.description || undefined,
-      categories: metadata.categories && metadata.categories.length > 0 ? metadata.categories : undefined,
-      ...(metadata.imageUrl && { imageUrl: metadata.imageUrl }),
-    };
-
-    // 3. Update the tool in the database
-    const updatedTool = await updateTool(toolId, updatedToolData);
-    revalidatePath('/');
-    
-    return { success: true, data: updatedTool, message: `${updatedTool.name} has been successfully updated.` };
-
-  } catch (error) {
-    console.error("Error refreshing tool:", error);
-    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-    return { success: false, error: `Failed to refresh tool data. Reason: ${errorMessage}` };
+    { toolId, url, justification }: { toolId: string; url: string; justification: string }
+  ): Promise<{ success: boolean; data?: Tool; error?: string; message?: string }> {
+    try {
+      // 1. Fetch new metadata from the AI flow
+      const metadata = await generateToolMetadata({ url, justification: justification || "Manual data refresh" });
+  
+      // 2. Prepare the data for an update, only including fields that have new values
+      const updatedToolData: Partial<Omit<Tool, 'id' | 'submittedAt'>> = {};
+  
+      if (metadata.title) updatedToolData.name = metadata.title;
+      if (metadata.description) updatedToolData.description = metadata.description;
+      if (metadata.categories && metadata.categories.length > 0) updatedToolData.categories = metadata.categories;
+      if (metadata.imageUrl) updatedToolData.imageUrl = metadata.imageUrl;
+  
+      // If there's no new data, don't update
+      if (Object.keys(updatedToolData).length === 0) {
+        return { success: true, message: "Tool is already up to date." };
+      }
+  
+      updatedToolData.lastUpdatedAt = Timestamp.now();
+  
+      // 3. Update the tool in the database
+      const updatedTool = await updateTool(toolId, updatedToolData);
+      revalidatePath('/');
+      
+      return { success: true, data: updatedTool, message: `${updatedTool.name} has been successfully updated.` };
+  
+    } catch (error) {
+      console.error("Error refreshing tool:", error);
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+      return { success: false, error: `Failed to refresh tool data. Reason: ${errorMessage}` };
+    }
   }
-}
+  

@@ -48,7 +48,10 @@ const prompt = ai.definePrompt({
       }),
     }),
   },
-  output: {schema: GenerateToolMetadataOutputSchema},
+  output: {
+    format: 'json',
+    schema: GenerateToolMetadataOutputSchema,
+  },
   model: googleAI.model('gemini-1.5-flash-latest'),
   prompt: `You are an expert at describing AI tools for a directory.
 
@@ -84,6 +87,10 @@ const generateToolMetadataFlow = ai.defineFlow(
       ...input,
       websiteContent,
     });
-    return output!;
+    
+    if (!output) {
+      throw new Error("The AI model did not return any output.");
+    }
+    return output;
   }
 );

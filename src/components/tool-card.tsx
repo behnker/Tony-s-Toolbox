@@ -142,6 +142,7 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
                             src={tool.imageUrl || 'https://placehold.co/600x400.png'} 
                             alt={tool.name} 
                             fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                             className="object-cover"
                             data-ai-hint={getImageHint(tool.categories)}
                         />

@@ -15,6 +15,7 @@ export type Tool = {
   submittedBy?: string;
   justification?: string;
   submittedAt: Date | Timestamp;
+  lastUpdatedAt?: Date | Timestamp;
   upvotes: number;
   downvotes: number;
   imageUrl?: string;
