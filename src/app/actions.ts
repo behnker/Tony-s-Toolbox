@@ -47,7 +47,9 @@ export async function submitTool(
     if (!urlString) return false;
     try {
       const url = new URL(urlString);
-      return ['http:', 'https:'].includes(url.protocol);
+      // Ensure it's a http/https protocol and has a common image extension.
+      const hasImageExtension = /\.(jpg|jpeg|png|svg|webp)$/i.test(url.pathname);
+      return ['http:', 'https:'].includes(url.protocol) && hasImageExtension;
     } catch (e) {
       return false;
     }
@@ -126,7 +128,9 @@ export async function refreshTool(
         if (!urlString) return false;
         try {
           const url = new URL(urlString);
-          return ['http:', 'https:'].includes(url.protocol);
+          // Ensure it's a http/https protocol and has a common image extension.
+          const hasImageExtension = /\.(jpg|jpeg|png|svg|webp)$/i.test(url.pathname);
+          return ['http:', 'https:'].includes(url.protocol) && hasImageExtension;
         } catch (e) {
           return false;
         }
