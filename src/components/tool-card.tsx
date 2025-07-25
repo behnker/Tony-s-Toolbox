@@ -22,17 +22,15 @@ import {
     DialogTrigger,
   } from "@/components/ui/dialog"
 import type { Tool } from "@/lib/types";
-import { ArrowUpRight, Calendar, Coins, PersonStanding, Sparkles, Star, ArrowBigUp, ArrowBigDown, User, RefreshCw, Loader2, UploadCloud } from "lucide-react";
+import { ArrowUpRight, Calendar, Coins, PersonStanding, Sparkles, Star, ArrowBigUp, ArrowBigDown, User, RefreshCw, Loader2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
-import { updateVote, refreshTool, updateToolImage } from '@/app/actions';
+import { updateVote, refreshTool } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from './ui/skeleton';
-import { storage } from '@/lib/firebase/client';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { Progress } from './ui/progress';
-import { Input } from './ui/input';
+import { ImageUploader } from './image-uploader';
+
 
 type ToolCardProps = {
   tool: Tool;
@@ -62,13 +60,11 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
   const [vote, setVote] = React.useState<'up' | 'down' | null>(null);
   const [isRefreshing, setIsRefreshing] = React.useState(false);
   const [imageUrl, setImageUrl] = React.useState<string | undefined>(tool.imageUrl);
-  const [uploadProgress, setUploadProgress] = React.useState<number | null>(null);
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const { toast } = useToast();
 
   React.useEffect(() => {
-    setImageUrl(tool.imageUrl); // Ensure image URL is in sync with the prop
+    setImageUrl(tool.imageUrl);
   }, [tool.imageUrl]);
 
   const handleRefresh = async () => {
@@ -95,60 +91,14 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
     }
   };
 
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
+  const handleUploadComplete = (updatedTool: Tool) => {
+    onToolUpdate(updatedTool);
+    setImageUrl(updatedTool.imageUrl);
+    toast({
+        title: "Image Updated!",
+        description: "The new tool image has been saved.",
+    });
   };
-
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-        handleUpload(file);
-    }
-  };
-
-  const handleUpload = React.useCallback((file: File) => {
-    if (!file) return;
-
-    const storageRef = ref(storage, `tool-images/${tool.id}/${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    uploadTask.on('state_changed',
-        (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            setUploadProgress(progress);
-        },
-        (error) => {
-            console.error("Upload failed:", error);
-            toast({
-                variant: "destructive",
-                title: "Upload Failed",
-                description: "Could not upload the image. Please try again.",
-            });
-            setUploadProgress(null);
-        },
-        async () => {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            const result = await updateToolImage({ toolId: tool.id, imageUrl: downloadURL });
-            setUploadProgress(null);
-
-            if (result.success && result.data) {
-                onToolUpdate(result.data);
-                setImageUrl(result.data.imageUrl);
-                toast({
-                    title: "Image Updated!",
-                    description: "The new tool image has been saved.",
-                });
-            } else {
-                toast({
-                    variant: "destructive",
-                    title: "Update Failed",
-                    description: result.error,
-                });
-            }
-        }
-    );
-  }, [tool.id, onToolUpdate, toast]);
-
 
   const handleUpvote = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -216,6 +166,7 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
                                 sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                                 className="object-cover"
                                 data-ai-hint={getImageHint(tool.categories)}
+                                unoptimized // Add this if you have issues with external image providers
                             />
                         )}
                     </div>
@@ -256,6 +207,7 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
                         alt={tool.name} 
                         fill
                         className="object-cover"
+                        unoptimized
                     />
                 </div>
                 <DialogTitle className="font-headline text-2xl">{tool.name}</DialogTitle>
@@ -295,34 +247,11 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
                 )}
                  <div className="pt-4 border-t">
                     <h4 className="font-semibold">Manage Image</h4>
-                    <div className="mt-2">
-                        <div 
-                            onClick={handleUploadClick}
-                            className={cn("w-full border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:border-primary hover:bg-accent", uploadProgress !== null && "opacity-50 pointer-events-none")}>
-                            <UploadCloud className="mx-auto h-8 w-8 text-muted-foreground" />
-                            <span className="mt-2 block text-sm font-semibold text-foreground">Click to upload a new image</span>
-                            <span className="mt-1 block text-xs text-muted-foreground">PNG, JPG, GIF up to 10MB</span>
-                        </div>
-                        <Input 
-                            id="image-upload"
-                            ref={fileInputRef}
-                            type="file" 
-                            className="sr-only" 
-                            onChange={handleFileSelect}
-                            accept="image/png, image/jpeg, image/gif"
-                            disabled={uploadProgress !== null}
-                        />
-                         {uploadProgress !== null && (
-                            <div className="mt-4 w-full">
-                                <Progress value={uploadProgress} className="w-full" />
-                                <p className="text-center text-sm text-muted-foreground mt-2">{Math.round(uploadProgress)}% uploaded</p>
-                            </div>
-                        )}
-                    </div>
+                    <ImageUploader toolId={tool.id} onUploadComplete={handleUploadComplete} />
                 </div>
             </div>
             <DialogFooter>
-                <Button variant="outline" onClick={handleRefresh} disabled={isRefreshing || uploadProgress !== null}>
+                <Button variant="outline" onClick={handleRefresh} disabled={isRefreshing}>
                     {isRefreshing ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
