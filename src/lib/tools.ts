@@ -35,18 +35,18 @@ export const getWebsiteContent = ai.defineTool(
       
       const text = await response.text();
       
-      const titleMatch = text.match(/<title>([^<]*)<\/title>/);
-      const descriptionMatch = text.match(/<meta\s+(?:name="description"|property="og:description")\s+content="([^"]*)"/);
+      const titleMatch = text.match(/<title>([^<]*)<\/title>/i);
+      const descriptionMatch = text.match(/<meta\s+(?:name="description"|property="og:description")\s+content="([^"]*)"/i);
 
       const title = titleMatch?.[1] || 'No title found';
       const description = descriptionMatch?.[1] || 'No description found';
 
       // Enhanced image search logic
-      const ogImageMatch = text.match(/<meta\s+property="og:image"\s+content="([^"]*)"/);
-      const twitterImageMatch = text.match(/<meta\s+name="twitter:image"\s+content="([^"]*)"/);
-      const appleIconMatch = text.match(/<link\s+rel="apple-touch-icon"\s+href="([^"]*)"/);
-      const highResFaviconMatch = text.match(/<link\s+rel="icon"\s+sizes="[^"]*"\s+href="([^"]*)"/);
-      const genericFaviconMatch = text.match(/<link\s+rel="icon"\s+href="([^"]*)"/);
+      const ogImageMatch = text.match(/<meta\s+property="og:image"\s+content="([^"]*)"/i);
+      const twitterImageMatch = text.match(/<meta\s+name="twitter:image"\s+content="([^"]*)"/i);
+      const appleIconMatch = text.match(/<link\s+rel="apple-touch-icon"\s+href="([^"]*)"/i);
+      const highResFaviconMatch = text.match(/<link\s+rel="icon"\s+sizes="[^"]*"\s+href="([^"]*)"/i);
+      const genericFaviconMatch = text.match(/<link\s+rel="icon"\s+href="([^"]*)"/i);
 
       let imageUrl: string | undefined = 
         ogImageMatch?.[1] || 
