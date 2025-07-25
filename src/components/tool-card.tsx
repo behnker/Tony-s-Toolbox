@@ -138,7 +138,9 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
                 <CardHeader>
                     <div className="aspect-video relative mb-4">
                         {!currentTool.imageUrl ? (
-                             <Skeleton className="h-full w-full" />
+                             <div className="h-full w-full bg-muted flex items-center justify-center">
+                                <Skeleton className="h-full w-full" />
+                             </div>
                         ) : (
                             <Image 
                                 src={currentTool.imageUrl} 
@@ -153,7 +155,9 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
                     </div>
                     <CardTitle className="flex justify-between items-start font-headline">
                         <span className="truncate">{currentTool.name}</span>
-                        <ArrowUpRight className="h-5 w-5 text-muted-foreground shrink-0" />
+                        <a href={currentTool.url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="shrink-0">
+                          <ArrowUpRight className="h-5 w-5 text-muted-foreground" />
+                        </a>
                     </CardTitle>
                     <CardDescription className="line-clamp-2">{currentTool.description}</CardDescription>
                 </CardHeader>
