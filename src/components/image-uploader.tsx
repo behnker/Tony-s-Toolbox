@@ -24,6 +24,7 @@ export function ImageUploader({ toolId, onUploadComplete }: ImageUploaderProps) 
   const { toast } = useToast();
 
   const handleUploadClick = () => {
+    // Clear previous errors and trigger the file input
     setError(null);
     fileInputRef.current?.click();
   };
@@ -34,6 +35,7 @@ export function ImageUploader({ toolId, onUploadComplete }: ImageUploaderProps) 
       return;
     }
 
+    // 1. Client-Side Validation
     const allowedTypes = ["image/png", "image/jpeg", "image/gif"];
     if (!allowedTypes.includes(file.type)) {
       setError("Invalid file type. Please upload a PNG, JPG, or GIF.");
@@ -46,11 +48,14 @@ export function ImageUploader({ toolId, onUploadComplete }: ImageUploaderProps) 
       return;
     }
 
+    setError(null);
     setUploadProgress(0);
 
+    // 2. Upload to Firebase Storage
     const storageRef = ref(storage, `tool-images/${toolId}/${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
+    // 3. Track Upload Progress
     uploadTask.on(
       "state_changed",
       (snapshot) => {
@@ -58,11 +63,13 @@ export function ImageUploader({ toolId, onUploadComplete }: ImageUploaderProps) 
         setUploadProgress(progress);
       },
       (uploadError) => {
+        // Handle unsuccessful uploads
         console.error("Upload failed:", uploadError);
         setError(`Upload failed: ${uploadError.message}`);
         setUploadProgress(null);
       },
       async () => {
+        // 4. Handle Completion
         try {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
           const result = await updateToolImage({ toolId, imageUrl: downloadURL });
@@ -79,12 +86,13 @@ export function ImageUploader({ toolId, onUploadComplete }: ImageUploaderProps) 
         } catch (finalError: any) {
              setError(`An unexpected error occurred: ${finalError.message}`);
         } finally {
+            // Reset progress bar regardless of outcome
             setUploadProgress(null);
         }
       }
     );
   };
-
+  
   const isUploading = uploadProgress !== null;
 
   return (
@@ -100,7 +108,7 @@ export function ImageUploader({ toolId, onUploadComplete }: ImageUploaderProps) 
       >
         <UploadCloud className="mx-auto h-8 w-8 text-muted-foreground" />
         <span className="mt-2 block text-sm font-semibold text-foreground">
-          Click to upload a new image
+          {isUploading ? `Uploading...` : "Click to upload a new image"}
         </span>
         <span className="mt-1 block text-xs text-muted-foreground">
           PNG, JPG, GIF up to 10MB
@@ -120,7 +128,7 @@ export function ImageUploader({ toolId, onUploadComplete }: ImageUploaderProps) 
         <div className="w-full space-y-2">
           <Progress value={uploadProgress} className="w-full" />
           <p className="text-center text-sm text-muted-foreground">
-            {Math.round(uploadProgress)}% uploaded
+            {Math.round(uploadProgress ?? 0)}% uploaded
           </p>
         </div>
       )}

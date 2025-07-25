@@ -61,17 +61,14 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
   const [isRefreshing, setIsRefreshing] = React.useState(false);
   const [open, setOpen] = React.useState(false);
 
-  // Use the passed-in tool prop as the source of truth
-  const currentTool = tool;
-
   const { toast } = useToast();
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
     const result = await refreshTool({
-        toolId: currentTool.id,
-        url: currentTool.url,
-        justification: currentTool.justification || 'Manual refresh request'
+        toolId: tool.id,
+        url: tool.url,
+        justification: tool.justification || 'Manual refresh request'
     });
     
     if (result.success && result.data) {
@@ -123,8 +120,8 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
     
     setVote(newVoteState);
     
-    onVoteChange(currentTool.id, currentTool.upvotes + upvoteIncrement, currentTool.downvotes + downvoteIncrement);
-    await updateVote({ toolId: currentTool.id, upvoteIncrement, downvoteIncrement });
+    onVoteChange(tool.id, tool.upvotes + upvoteIncrement, tool.downvotes + downvoteIncrement);
+    await updateVote({ toolId: tool.id, upvoteIncrement, downvoteIncrement });
   };
     
   return (
@@ -133,33 +130,33 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
             <Card className="flex flex-col h-full cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-primary overflow-hidden">
                 <CardHeader>
                     <div className="aspect-video relative mb-4">
-                        {!currentTool.imageUrl ? (
+                        {!tool.imageUrl ? (
                              <div className="h-full w-full bg-muted flex items-center justify-center">
                                 <Skeleton className="h-full w-full" />
                              </div>
                         ) : (
                             <Image 
-                                src={currentTool.imageUrl} 
-                                alt={currentTool.name} 
+                                src={tool.imageUrl} 
+                                alt={tool.name} 
                                 fill
                                 sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                                 className="object-cover"
-                                data-ai-hint={getImageHint(currentTool.categories)}
+                                data-ai-hint={getImageHint(tool.categories)}
                                 unoptimized
                             />
                         )}
                     </div>
                     <CardTitle className="flex justify-between items-start font-headline">
-                        <span className="truncate">{currentTool.name}</span>
-                        <a href={currentTool.url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="shrink-0">
+                        <span className="truncate">{tool.name}</span>
+                        <a href={tool.url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="shrink-0">
                           <ArrowUpRight className="h-5 w-5 text-muted-foreground" />
                         </a>
                     </CardTitle>
-                    <CardDescription className="line-clamp-2">{currentTool.description}</CardDescription>
+                    <CardDescription className="line-clamp-2">{tool.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
                     <div className="flex flex-wrap gap-2">
-                        {currentTool.categories.slice(0, 3).map((category) => (
+                        {tool.categories.slice(0, 3).map((category) => (
                         <Badge key={category} variant="secondary">
                             {category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ')}
                         </Badge>
@@ -171,12 +168,12 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
                         <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => handleVote(e, 'up')}>
                             <ArrowBigUp className={cn("h-4 w-4", vote === 'up' && 'fill-primary text-primary')} />
                         </Button>
-                        <span className="font-bold text-sm text-foreground">{currentTool.upvotes - currentTool.downvotes}</span>
+                        <span className="font-bold text-sm text-foreground">{tool.upvotes - tool.downvotes}</span>
                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => handleVote(e, 'down')}>
                             <ArrowBigDown className={cn("h-4 w-4", vote === 'down' && 'fill-primary text-primary')} />
                         </Button>
                     </div>
-                    <span>{getFormattedDate(currentTool.submittedAt)}</span>
+                    <span>{getFormattedDate(tool.submittedAt)}</span>
                 </CardFooter>
             </Card>
         </DialogTrigger>
@@ -184,51 +181,51 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
             <DialogHeader>
                 <div className="aspect-video relative mb-4 rounded-lg overflow-hidden">
                     <Image 
-                        src={currentTool.imageUrl || 'https://placehold.co/600x400.png'} 
-                        alt={currentTool.name} 
+                        src={tool.imageUrl || 'https://placehold.co/600x400.png'} 
+                        alt={tool.name} 
                         fill
                         className="object-cover"
                         unoptimized
                     />
                 </div>
-                <DialogTitle className="font-headline text-2xl">{currentTool.name}</DialogTitle>
+                <DialogTitle className="font-headline text-2xl">{tool.name}</DialogTitle>
                 <DialogDescription>
-                    <a href={currentTool.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
-                        {currentTool.url} <ArrowUpRight className="h-4 w-4" />
+                    <a href={tool.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
+                        {tool.url} <ArrowUpRight className="h-4 w-4" />
                     </a>
                 </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
-                <p>{currentTool.description}</p>
+                <p>{tool.description}</p>
                 <div className="flex flex-wrap gap-2">
-                    {currentTool.categories.map((category) => (
+                    {tool.categories.map((category) => (
                     <Badge key={category} variant="secondary">
                         {category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ')}
                     </Badge>
                     ))}
                 </div>
                 <div className="grid grid-cols-2 gap-4 text-sm pt-4">
-                    <div className="flex items-center gap-2 text-muted-foreground"><Coins className="h-4 w-4 text-primary" /> Price: <span className="font-semibold text-foreground">{currentTool.price}</span></div>
-                    <div className="flex items-center gap-2 text-muted-foreground"><PersonStanding className="h-4 w-4 text-primary" /> Ease of Use: <span className="font-semibold text-foreground">{currentTool.easeOfUse}</span></div>
-                    <div className="flex items-center gap-2 text-muted-foreground"><ArrowBigUp className="h-4 w-4 text-primary" /> Upvotes: <span className="font-semibold text-foreground">{currentTool.upvotes}</span></div>
-                    <div className="flex items-center gap-2 text-muted-foreground"><ArrowBigDown className="h-4 w-4 text-primary" /> Downvotes: <span className="font-semibold text-foreground">{currentTool.downvotes}</span></div>
-                    <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="h-4 w-4 text-primary" /> Submitted: <span className="font-semibold text-foreground">{getFormattedDate(currentTool.submittedAt)}</span></div>
+                    <div className="flex items-center gap-2 text-muted-foreground"><Coins className="h-4 w-4 text-primary" /> Price: <span className="font-semibold text-foreground">{tool.price}</span></div>
+                    <div className="flex items-center gap-2 text-muted-foreground"><PersonStanding className="h-4 w-4 text-primary" /> Ease of Use: <span className="font-semibold text-foreground">{tool.easeOfUse}</span></div>
+                    <div className="flex items-center gap-2 text-muted-foreground"><ArrowBigUp className="h-4 w-4 text-primary" /> Upvotes: <span className="font-semibold text-foreground">{tool.upvotes}</span></div>
+                    <div className="flex items-center gap-2 text-muted-foreground"><ArrowBigDown className="h-4 w-4 text-primary" /> Downvotes: <span className="font-semibold text-foreground">{tool.downvotes}</span></div>
+                    <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="h-4 w-4 text-primary" /> Submitted: <span className="font-semibold text-foreground">{getFormattedDate(tool.submittedAt)}</span></div>
                 </div>
-                {currentTool.submittedBy && currentTool.justification && (
+                {tool.submittedBy && tool.justification && (
                     <div className="pt-4 border-t">
                         <h4 className="font-semibold flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary" /> Community Recommendation</h4>
                         <blockquote className="mt-2 border-l-2 pl-4 italic text-muted-foreground">
-                            "{currentTool.justification}"
+                            "{tool.justification}"
                         </blockquote>
                         <div className="text-right text-sm font-medium text-foreground flex items-center justify-end gap-2 mt-2">
                             <User className="h-4 w-4" />
-                            <span>- {currentTool.submittedBy}</span>
+                            <span>- {tool.submittedBy}</span>
                         </div>
                     </div>
                 )}
                  <div className="pt-4 border-t">
                     <h4 className="font-semibold">Manage Image</h4>
-                    <ImageUploader toolId={currentTool.id} onUploadComplete={handleUploadComplete} />
+                    <ImageUploader toolId={tool.id} onUploadComplete={handleUploadComplete} />
                 </div>
             </div>
             <DialogFooter>
