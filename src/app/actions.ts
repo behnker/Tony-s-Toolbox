@@ -17,6 +17,20 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 
+const isValidUrl = (urlString: string | null | undefined): urlString is string => {
+    if (!urlString) return false;
+    try {
+      const url = new URL(urlString);
+      // Allow data URIs and http/https URLs with common image extensions.
+      if (url.protocol === 'data:') return true;
+      const hasImageExtension = /\.(jpg|jpeg|png|svg|webp)$/i.test(url.pathname);
+      return ['http:', 'https:'].includes(url.protocol) && hasImageExtension;
+    } catch (e) {
+      return false;
+    }
+}
+
+
 export async function submitTool(
   values: FormValues
 ): Promise<{ success: boolean; data?: Tool; error?: string; message?: string }> {
@@ -42,18 +56,6 @@ export async function submitTool(
     };
   }
 
-  // Basic validation for imageUrl
-  const isValidUrl = (urlString: string | null): boolean => {
-    if (!urlString) return false;
-    try {
-      const url = new URL(urlString);
-      // Ensure it's a http/https protocol and has a common image extension.
-      const hasImageExtension = /\.(jpg|jpeg|png|svg|webp)$/i.test(url.pathname);
-      return ['http:', 'https:'].includes(url.protocol) && hasImageExtension;
-    } catch (e) {
-      return false;
-    }
-  }
 
   try {
     if (existingTool) {
@@ -63,7 +65,7 @@ export async function submitTool(
       if (metadata.title) updatedToolData.name = metadata.title;
       if (metadata.description) updatedToolData.description = metadata.description;
       if (metadata.categories && metadata.categories.length > 0) updatedToolData.categories = metadata.categories;
-      updatedToolData.imageUrl = isValidUrl(metadata.imageUrl) ? metadata.imageUrl! : undefined;
+      updatedToolData.imageUrl = isValidUrl(metadata.imageUrl) ? metadata.imageUrl : undefined;
       
       if (Object.keys(updatedToolData).length === 0) {
         return { success: true, data: existingTool, message: `${existingTool.name} is already up-to-date.` };
@@ -88,7 +90,7 @@ export async function submitTool(
         justification: justification,
         upvotes: 1,
         downvotes: 0,
-        imageUrl: isValidUrl(metadata.imageUrl) ? metadata.imageUrl! : undefined,
+        imageUrl: isValidUrl(metadata.imageUrl) ? metadata.imageUrl : undefined,
       };
 
       const savedTool = await addTool(newToolData);
@@ -123,26 +125,14 @@ export async function refreshTool(
       // 1. Fetch new metadata from the AI flow
       const metadata = await generateToolMetadata({ url, justification: justification || "Manual data refresh" });
       
-      // Basic validation for imageUrl
-      const isValidUrl = (urlString: string | null): boolean => {
-        if (!urlString) return false;
-        try {
-          const url = new URL(urlString);
-          // Ensure it's a http/https protocol and has a common image extension.
-          const hasImageExtension = /\.(jpg|jpeg|png|svg|webp)$/i.test(url.pathname);
-          return ['http:', 'https:'].includes(url.protocol) && hasImageExtension;
-        } catch (e) {
-          return false;
-        }
-      }
-  
       // 2. Prepare the data for an update
       const updatedToolData: Partial<Omit<Tool, 'id' | 'submittedAt'>> = {};
   
       if (metadata.title) updatedToolData.name = metadata.title;
       if (metadata.description) updatedToolData.description = metadata.description;
       if (metadata.categories && metadata.categories.length > 0) updatedToolData.categories = metadata.categories;
-      updatedToolData.imageUrl = isValidUrl(metadata.imageUrl) ? metadata.imageUrl! : undefined;
+      
+      updatedToolData.imageUrl = isValidUrl(metadata.imageUrl) ? metadata.imageUrl : undefined;
   
       if (Object.keys(updatedToolData).length === 0) {
         const existingTool = await getToolByUrl(url);

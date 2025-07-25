@@ -28,6 +28,8 @@ import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { updateVote, refreshTool } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from './ui/skeleton';
+import { generateToolImage } from '@/ai/flows/generate-tool-image';
 
 
 type ToolCardProps = {
@@ -57,7 +59,34 @@ function getFormattedDate(date: Date | undefined): string {
 export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
   const [vote, setVote] = React.useState<'up' | 'down' | null>(null);
   const [isRefreshing, setIsRefreshing] = React.useState(false);
+  const [imageUrl, setImageUrl] = React.useState<string | undefined>(tool.imageUrl);
+  const [isGeneratingImage, setIsGeneratingImage] = React.useState(false);
+
   const { toast } = useToast();
+
+
+  React.useEffect(() => {
+    if (!tool.imageUrl) {
+        const generateImage = async () => {
+            setIsGeneratingImage(true);
+            try {
+                const result = await generateToolImage({
+                    name: tool.name,
+                    categories: tool.categories,
+                });
+                setImageUrl(result.imageUrl);
+            } catch (error) {
+                console.error("Failed to generate tool image:", error);
+                // Fallback to placeholder if generation fails
+                setImageUrl('https://placehold.co/600x400.png');
+            } finally {
+                setIsGeneratingImage(false);
+            }
+        };
+        generateImage();
+    }
+  }, [tool.imageUrl, tool.name, tool.categories]);
+
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -69,6 +98,7 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
     setIsRefreshing(false);
     if (result.success && result.data) {
         onToolUpdate(result.data);
+        setImageUrl(result.data.imageUrl); // Update image URL on refresh
         toast({
             title: "Update Successful!",
             description: result.message,
@@ -138,14 +168,18 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
             <Card className="flex flex-col h-full cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-primary overflow-hidden">
                 <CardHeader>
                     <div className="aspect-video relative mb-4">
-                        <Image 
-                            src={tool.imageUrl || 'https://placehold.co/600x400.png'} 
-                            alt={tool.name} 
-                            fill
-                            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                            className="object-cover"
-                            data-ai-hint={getImageHint(tool.categories)}
-                        />
+                        {isGeneratingImage ? (
+                             <Skeleton className="h-full w-full" />
+                        ) : (
+                            <Image 
+                                src={imageUrl || 'https://placehold.co/600x400.png'} 
+                                alt={tool.name} 
+                                fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                                className="object-cover"
+                                data-ai-hint={getImageHint(tool.categories)}
+                            />
+                        )}
                     </div>
                     <CardTitle className="flex justify-between items-start font-headline">
                         <span className="truncate">{tool.name}</span>
