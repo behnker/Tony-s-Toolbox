@@ -9,7 +9,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { updateToolImage } from "@/app/actions";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
-import { UploadCloud } from "lucide-react";
+import { UploadCloud, AlertCircle } from "lucide-react";
 import type { Tool } from "@/lib/types";
 
 interface ImageUploaderProps {
@@ -18,75 +18,91 @@ interface ImageUploaderProps {
 }
 
 export function ImageUploader({ toolId, onUploadComplete }: ImageUploaderProps) {
-  const [uploadProgress, setUploadProgress] = React.useState<number | null>(null);
   const [isUploading, setIsUploading] = React.useState(false);
+  const [uploadProgress, setUploadProgress] = React.useState(0);
+  const [error, setError] = React.useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const handleUploadClick = () => {
+    // Clear previous errors when trying a new upload
+    setError(null);
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) {
       return;
     }
 
+    // 1. Client-side validation
+    const allowedTypes = ["image/png", "image/jpeg", "image/gif"];
+    if (!allowedTypes.includes(file.type)) {
+      setError("Invalid file type. Please upload a PNG, JPG, or GIF.");
+      return;
+    }
+
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      setError("File is too large. Maximum size is 10MB.");
+      return;
+    }
+
+    // 2. Start upload process
     setIsUploading(true);
     setUploadProgress(0);
 
     const storageRef = ref(storage, `tool-images/${toolId}/${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
+    // 3. Listen to upload events
     uploadTask.on(
       "state_changed",
       (snapshot) => {
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         setUploadProgress(progress);
       },
-      (error) => {
-        console.error("Upload failed:", error);
-        toast({
-          variant: "destructive",
-          title: "Upload Failed",
-          description: "Could not upload the image. Please try again.",
-        });
+      (uploadError) => {
+        // Handle unsuccessful uploads
+        console.error("Upload failed:", uploadError);
+        setError(`Upload failed: ${uploadError.message}`);
         setIsUploading(false);
-        setUploadProgress(null);
+        setUploadProgress(0);
       },
       async () => {
-        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        const result = await updateToolImage({ toolId, imageUrl: downloadURL });
+        // Handle successful uploads on complete
+        try {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          const result = await updateToolImage({ toolId, imageUrl: downloadURL });
 
-        if (result.success && result.data) {
-          onUploadComplete(result.data);
-          toast({
-            title: "Image Updated!",
-            description: "The new tool image has been saved.",
-          });
-        } else {
-          toast({
-            variant: "destructive",
-            title: "Update Failed",
-            description: result.error,
-          });
+          if (result.success && result.data) {
+            onUploadComplete(result.data);
+            toast({
+              title: "Image Updated!",
+              description: "The new tool image has been saved.",
+            });
+          } else {
+             setError(result.error || "Failed to update tool in database.");
+          }
+        } catch (finalError: any) {
+             setError(`An unexpected error occurred: ${finalError.message}`);
+        } finally {
+            setIsUploading(false);
         }
-        setIsUploading(false);
-        setUploadProgress(null);
       }
     );
   };
 
   return (
-    <div className="mt-2">
+    <div className="mt-2 space-y-4">
       <div
         onClick={!isUploading ? handleUploadClick : undefined}
         className={cn(
-          "w-full border-2 border-dashed rounded-md p-4 text-center",
+          "w-full border-2 border-dashed rounded-md p-4 text-center transition-colors",
           !isUploading
             ? "cursor-pointer hover:border-primary hover:bg-accent"
-            : "opacity-50 pointer-events-none"
+            : "opacity-50 pointer-events-none bg-muted"
         )}
       >
         <UploadCloud className="mx-auto h-8 w-8 text-muted-foreground" />
@@ -106,12 +122,20 @@ export function ImageUploader({ toolId, onUploadComplete }: ImageUploaderProps) 
         accept="image/png, image/jpeg, image/gif"
         disabled={isUploading}
       />
-      {isUploading && uploadProgress !== null && (
-        <div className="mt-4 w-full">
+      
+      {isUploading && (
+        <div className="w-full space-y-2">
           <Progress value={uploadProgress} className="w-full" />
-          <p className="text-center text-sm text-muted-foreground mt-2">
+          <p className="text-center text-sm text-muted-foreground">
             {Math.round(uploadProgress)}% uploaded
           </p>
+        </div>
+      )}
+
+      {error && (
+        <div className="flex items-center gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <span>{error}</span>
         </div>
       )}
     </div>

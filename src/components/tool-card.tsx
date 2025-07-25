@@ -59,14 +59,12 @@ function getFormattedDate(date: Date | undefined): string {
 export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
   const [vote, setVote] = React.useState<'up' | 'down' | null>(null);
   const [isRefreshing, setIsRefreshing] = React.useState(false);
-  const [currentTool, setCurrentTool] = React.useState<Tool>(tool);
   const [open, setOpen] = React.useState(false);
 
-  const { toast } = useToast();
+  // Use the passed-in tool prop as the source of truth
+  const currentTool = tool;
 
-  React.useEffect(() => {
-    setCurrentTool(tool);
-  }, [tool]);
+  const { toast } = useToast();
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -78,7 +76,6 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
     
     if (result.success && result.data) {
         onToolUpdate(result.data);
-        setCurrentTool(result.data);
         toast({
             title: "Update Successful!",
             description: result.message,
@@ -95,7 +92,6 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
 
   const handleUploadComplete = (updatedTool: Tool) => {
     onToolUpdate(updatedTool);
-    setCurrentTool(updatedTool);
   };
 
   const handleVote = async (e: React.MouseEvent, direction: 'up' | 'down') => {
