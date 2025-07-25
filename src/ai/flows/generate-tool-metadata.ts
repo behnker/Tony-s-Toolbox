@@ -41,9 +41,7 @@ const prompt = ai.definePrompt({
       url: z.string().url(),
       justification: z.string(),
       websiteContent: z.object({
-        title: z.string(),
-        description: z.string(),
-        imageUrl: z.string().optional(),
+        htmlContent: z.string().optional(),
         error: z.string().optional(),
       }),
     }),
@@ -53,22 +51,20 @@ const prompt = ai.definePrompt({
     schema: GenerateToolMetadataOutputSchema,
   },
   model: googleAI.model('gemini-1.5-flash-latest'),
-  prompt: `You are an expert at describing AI tools for a directory.
+  prompt: `You are an expert at extracting tool information from website HTML.
 
-Your task is to generate the following information for the tool at the given URL, using the provided website content:
-- A concise and accurate title for the tool. Use the title from the website content.
-- A clear, one or two-sentence description of what the tool does. Use the description from the website content.
+Your task is to generate the following information for the tool at the given URL, using the provided HTML content:
+- A concise and accurate title for the tool. Find it in the <title> tag.
+- A clear, one or two-sentence description of what the tool does. Find it in the <meta name="description"> or <meta property="og:description"> tag.
 - An array of up to 3 relevant categories (e.g., "image-generation", "developer-tools", "copywriting", "diagramming", "whiteboard").
-- The URL for a relevant image, like a logo, banner, or screenshot. Use the imageUrl from the website content if it exists.
+- The URL for a relevant image. Search the HTML for the "og:image", "twitter:image", or "apple-touch-icon" meta tags. If you find a relative URL (e.g., "/logo.png"), convert it to an absolute URL using the tool's main URL ({{{url}}}).
 
 If the provided website content is sparse or indicates an error, base your response on your existing knowledge of the tool at the given URL and the user's justification.
 
 URL: {{{url}}}
 User's Justification: "{{{justification}}}"
-Website Content:
-Title: {{{websiteContent.title}}}
-Description: {{{websiteContent.description}}}
-Image URL: {{{websiteContent.imageUrl}}}
+Website HTML Content:
+{{{websiteContent.htmlContent}}}
 `,
 });
 
