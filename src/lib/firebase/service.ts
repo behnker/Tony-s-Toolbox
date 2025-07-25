@@ -21,8 +21,16 @@ function convertDocToTool(doc: FirebaseFirestore.DocumentSnapshot): Tool {
     const data = doc.data()!;
     
     const convertTimestamp = (ts: any): Date | undefined => {
+        if (!ts) return undefined;
         if (ts instanceof Timestamp) return ts.toDate();
+        // Handle cases where it might already be a Date object or a string
         if (ts instanceof Date) return ts;
+        try {
+            const date = new Date(ts);
+            if (!isNaN(date.getTime())) return date;
+        } catch (e) {
+             // Ignore invalid date strings
+        }
         return undefined;
     }
 
@@ -103,7 +111,13 @@ export async function getToolByUrl(url: string): Promise<Tool | null> {
 
 export async function updateTool(toolId: string, toolData: Partial<Omit<Tool, 'id'>>): Promise<Tool> {
     const toolRef = db.collection("tools").doc(toolId);
-    await toolRef.update(toolData);
+    
+    const serializableData = { ...toolData };
+    if (serializableData.lastUpdatedAt instanceof Date) {
+        serializableData.lastUpdatedAt = Timestamp.fromDate(serializableData.lastUpdatedAt);
+    }
+
+    await toolRef.update(serializableData);
     
     const updatedDoc = await toolRef.get();
     return convertDocToTool(updatedDoc);

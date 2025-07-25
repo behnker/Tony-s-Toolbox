@@ -25,7 +25,6 @@ const GenerateToolMetadataOutputSchema = z.object({
   title: z.string().describe('The name of the tool.'),
   description: z.string().describe('A short, clear description of the tool.'),
   categories: z.array(z.string()).describe('An array of relevant categories for the tool (e.g., "image-generation", "developer-tools", "copywriting", "diagramming", "whiteboard").'),
-  imageUrl: z.string().nullable().describe('The URL of a relevant image (logo, banner, screenshot) for the tool.'),
 });
 export type GenerateToolMetadataOutput = z.infer<typeof GenerateToolMetadataOutputSchema>;
 
@@ -58,11 +57,6 @@ Your task is to generate a JSON object with the following fields for the tool at
 - title: A concise and accurate title for the tool. Find it in the <title> tag.
 - description: A clear, one or two-sentence description of what the tool does. Find it in the <meta name="description"> or <meta property="og:description"> tag.
 - categories: An array of up to 3 relevant categories (e.g., "image-generation", "developer-tools", "copywriting").
-- imageUrl: This is the most important field. You MUST find a valid URL for a relevant image. The URL MUST end in .png, .jpg, .jpeg, .svg, or .webp.
-    - First, search the HTML for a meta tag like <meta property="og:image" content="..."> or <meta name="twitter:image" content="...">.
-    - If you find a relative URL (e.g., "/logo.png"), you MUST convert it to an absolute URL using the tool's main URL ({{{url}}}).
-    - You MUST NOT use the content of the <title> tag as the imageUrl.
-    - If you cannot find any suitable image URL in a meta tag, you MUST return null for this field.
 
 If the provided website content is sparse or indicates an error, base your response on your existing knowledge of the tool at the given URL and the user's justification.
 
