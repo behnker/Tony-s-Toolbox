@@ -29,12 +29,10 @@ import { cn } from '@/lib/utils';
 import { updateVote, refreshTool, updateToolImage } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from './ui/skeleton';
-import { generateToolImage } from '@/ai/flows/generate-tool-image';
 import { storage } from '@/lib/firebase/client';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { Progress } from './ui/progress';
 import { Input } from './ui/input';
-import { Label } from './ui/label';
 
 type ToolCardProps = {
   tool: Tool;
@@ -64,35 +62,14 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
   const [vote, setVote] = React.useState<'up' | 'down' | null>(null);
   const [isRefreshing, setIsRefreshing] = React.useState(false);
   const [imageUrl, setImageUrl] = React.useState<string | undefined>(tool.imageUrl);
-  const [isGeneratingImage, setIsGeneratingImage] = React.useState(false);
   const [uploadProgress, setUploadProgress] = React.useState<number | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const { toast } = useToast();
 
-
   React.useEffect(() => {
     setImageUrl(tool.imageUrl); // Ensure image URL is in sync with the prop
-    if (!tool.imageUrl) {
-        const generateImage = async () => {
-            setIsGeneratingImage(true);
-            try {
-                const result = await generateToolImage({
-                    name: tool.name,
-                    categories: tool.categories,
-                });
-                setImageUrl(result.imageUrl);
-            } catch (error) {
-                console.error("Failed to generate tool image:", error);
-                setImageUrl('https://placehold.co/600x400.png');
-            } finally {
-                setIsGeneratingImage(false);
-            }
-        };
-        generateImage();
-    }
-  }, [tool.imageUrl, tool.name, tool.categories]);
-
+  }, [tool.imageUrl]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -116,6 +93,10 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
             description: result.error,
         });
     }
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -225,11 +206,11 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
             <Card className="flex flex-col h-full cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-primary overflow-hidden">
                 <CardHeader>
                     <div className="aspect-video relative mb-4">
-                        {isGeneratingImage ? (
+                        {!imageUrl ? (
                              <Skeleton className="h-full w-full" />
                         ) : (
                             <Image 
-                                src={imageUrl || 'https://placehold.co/600x400.png'} 
+                                src={imageUrl} 
                                 alt={tool.name} 
                                 fill
                                 sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
@@ -315,13 +296,13 @@ export function ToolCard({ tool, onVoteChange, onToolUpdate }: ToolCardProps) {
                  <div className="pt-4 border-t">
                     <h4 className="font-semibold">Manage Image</h4>
                     <div className="mt-2">
-                        <Label htmlFor="image-upload" className={cn("w-full", uploadProgress !== null && "opacity-50 pointer-events-none")}>
-                            <div className="w-full border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:border-primary hover:bg-accent">
-                                <UploadCloud className="mx-auto h-8 w-8 text-muted-foreground" />
-                                <span className="mt-2 block text-sm font-semibold text-foreground">Click to upload a new image</span>
-                                <span className="mt-1 block text-xs text-muted-foreground">PNG, JPG, GIF up to 10MB</span>
-                            </div>
-                        </Label>
+                        <div 
+                            onClick={handleUploadClick}
+                            className={cn("w-full border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:border-primary hover:bg-accent", uploadProgress !== null && "opacity-50 pointer-events-none")}>
+                            <UploadCloud className="mx-auto h-8 w-8 text-muted-foreground" />
+                            <span className="mt-2 block text-sm font-semibold text-foreground">Click to upload a new image</span>
+                            <span className="mt-1 block text-xs text-muted-foreground">PNG, JPG, GIF up to 10MB</span>
+                        </div>
                         <Input 
                             id="image-upload"
                             ref={fileInputRef}
