@@ -9,20 +9,13 @@
  */
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import {getWebsiteContent, extractMetadataFromHtml} from '@/lib/tools';
+import {getWebsiteContent, extractMetadataFromHtml, GenerateToolMetadataOutputSchema} from '@/lib/tools';
 
 const GenerateToolMetadataInputSchema = z.object({
   url: z.string().url().describe('The URL of the tool to describe.'),
   justification: z.string().describe("The user's reason for recommending the tool."),
 });
 export type GenerateToolMetadataInput = z.infer<typeof GenerateToolMetadataInputSchema>;
-
-export const GenerateToolMetadataOutputSchema = z.object({
-  title: z.string().describe('The name of the tool.'),
-  description: z.string().describe('A short, clear description of the tool.'),
-  categories: z.array(z.string()).describe('An array of relevant categories for the tool (e.g., "image-generation", "developer-tools", "copywriting", "diagramming", "whiteboard").'),
-  imageUrl: z.string().url().nullable().describe('The absolute URL of a relevant image for the tool, or null if none is found.'),
-});
 export type GenerateToolMetadataOutput = z.infer<typeof GenerateToolMetadataOutputSchema>;
 
 
