@@ -27,15 +27,11 @@ export function ImageUploader({ toolId, onUploadComplete }: ImageUploaderProps) 
     fileInputRef.current?.click();
   };
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      handleUpload(file);
+    if (!file) {
+      return;
     }
-  };
-
-  const handleUpload = (file: File) => {
-    if (!file) return;
 
     setIsUploading(true);
     setUploadProgress(0);
@@ -65,6 +61,10 @@ export function ImageUploader({ toolId, onUploadComplete }: ImageUploaderProps) 
 
         if (result.success && result.data) {
           onUploadComplete(result.data);
+          toast({
+            title: "Image Updated!",
+            description: "The new tool image has been saved.",
+          });
         } else {
           toast({
             variant: "destructive",
@@ -102,7 +102,7 @@ export function ImageUploader({ toolId, onUploadComplete }: ImageUploaderProps) 
         ref={fileInputRef}
         type="file"
         className="sr-only"
-        onChange={handleFileSelect}
+        onChange={handleFileChange}
         accept="image/png, image/jpeg, image/gif"
         disabled={isUploading}
       />
