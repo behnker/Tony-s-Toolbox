@@ -50,7 +50,7 @@ export async function submitTool(
       if (metadata.title) updatedToolData.name = metadata.title;
       if (metadata.description) updatedToolData.description = metadata.description;
       if (metadata.categories && metadata.categories.length > 0) updatedToolData.categories = metadata.categories;
-      if (metadata.imageUrl) updatedToolData.imageUrl = metadata.imageUrl;
+      updatedToolData.imageUrl = metadata.imageUrl || undefined;
       
       if (Object.keys(updatedToolData).length === 0) {
         return { success: true, data: existingTool, message: `${existingTool.name} is already up-to-date.` };
@@ -116,10 +116,10 @@ export async function refreshTool(
       if (metadata.title) updatedToolData.name = metadata.title;
       if (metadata.description) updatedToolData.description = metadata.description;
       if (metadata.categories && metadata.categories.length > 0) updatedToolData.categories = metadata.categories;
-      if (metadata.imageUrl) updatedToolData.imageUrl = metadata.imageUrl;
+      updatedToolData.imageUrl = metadata.imageUrl || undefined; // Use null to clear, or the new URL
   
       // If there's no new data, don't update
-      if (Object.keys(updatedToolData).length === 0) {
+      if (Object.keys(updatedToolData).length === 1 && 'imageUrl' in updatedToolData && !updatedToolData.imageUrl) {
         const existingTool = await getToolByUrl(url);
         return { success: true, data: existingTool || undefined, message: "Tool is already up to date." };
       }
