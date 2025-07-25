@@ -18,14 +18,12 @@ interface ImageUploaderProps {
 }
 
 export function ImageUploader({ toolId, onUploadComplete }: ImageUploaderProps) {
-  const [isUploading, setIsUploading] = React.useState(false);
-  const [uploadProgress, setUploadProgress] = React.useState(0);
+  const [uploadProgress, setUploadProgress] = React.useState<number | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const handleUploadClick = () => {
-    // Clear previous errors when trying a new upload
     setError(null);
     fileInputRef.current?.click();
   };
@@ -36,7 +34,6 @@ export function ImageUploader({ toolId, onUploadComplete }: ImageUploaderProps) 
       return;
     }
 
-    // 1. Client-side validation
     const allowedTypes = ["image/png", "image/jpeg", "image/gif"];
     if (!allowedTypes.includes(file.type)) {
       setError("Invalid file type. Please upload a PNG, JPG, or GIF.");
@@ -49,14 +46,11 @@ export function ImageUploader({ toolId, onUploadComplete }: ImageUploaderProps) 
       return;
     }
 
-    // 2. Start upload process
-    setIsUploading(true);
     setUploadProgress(0);
 
     const storageRef = ref(storage, `tool-images/${toolId}/${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
-    // 3. Listen to upload events
     uploadTask.on(
       "state_changed",
       (snapshot) => {
@@ -64,14 +58,11 @@ export function ImageUploader({ toolId, onUploadComplete }: ImageUploaderProps) 
         setUploadProgress(progress);
       },
       (uploadError) => {
-        // Handle unsuccessful uploads
         console.error("Upload failed:", uploadError);
         setError(`Upload failed: ${uploadError.message}`);
-        setIsUploading(false);
-        setUploadProgress(0);
+        setUploadProgress(null);
       },
       async () => {
-        // Handle successful uploads on complete
         try {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
           const result = await updateToolImage({ toolId, imageUrl: downloadURL });
@@ -88,11 +79,13 @@ export function ImageUploader({ toolId, onUploadComplete }: ImageUploaderProps) 
         } catch (finalError: any) {
              setError(`An unexpected error occurred: ${finalError.message}`);
         } finally {
-            setIsUploading(false);
+            setUploadProgress(null);
         }
       }
     );
   };
+
+  const isUploading = uploadProgress !== null;
 
   return (
     <div className="mt-2 space-y-4">
