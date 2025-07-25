@@ -25,6 +25,7 @@ const GenerateToolMetadataOutputSchema = z.object({
   title: z.string().describe('The name of the tool.'),
   description: z.string().describe('A short, clear description of the tool.'),
   categories: z.array(z.string()).describe('An array of relevant categories for the tool (e.g., "image-generation", "developer-tools", "copywriting", "diagramming", "whiteboard").'),
+  imageUrl: z.string().nullable().describe('The absolute URL of a relevant image for the tool, or null if none is found. MUST be a valid image URL (ending in .png, .jpg, .jpeg, .svg, .webp) and NOT the content of a <title> tag.'),
 });
 export type GenerateToolMetadataOutput = z.infer<typeof GenerateToolMetadataOutputSchema>;
 
@@ -52,18 +53,21 @@ const prompt = ai.definePrompt({
   model: googleAI.model('gemini-1.5-flash-latest'),
   prompt: `You are an expert at extracting structured information from website HTML.
 
-Your task is to generate a JSON object with the following fields for the tool at the given URL, using the provided HTML content.
+Your task is to parse the provided HTML content and generate a JSON object with the following fields for the tool at the given URL.
 
 - title: A concise and accurate title for the tool. Find it in the <title> tag.
 - description: A clear, one or two-sentence description of what the tool does. Find it in the <meta name="description"> or <meta property="og:description"> tag.
 - categories: An array of up to 3 relevant categories (e.g., "image-generation", "developer-tools", "copywriting").
+- imageUrl: Find the best possible image for the tool. Search for meta tags like "og:image", "twitter:image", or "apple-touch-icon". The result MUST be a full, absolute URL (e.g., "https://example.com/image.png"). If you only find a relative path (e.g., "/image.png"), you MUST combine it with the original URL ("{{{url}}}") to create an absolute URL. If you cannot find any suitable image URL, you MUST return null for this field. Do NOT use the website's title or any other text as the imageUrl.
 
 If the provided website content is sparse or indicates an error, base your response on your existing knowledge of the tool at the given URL and the user's justification.
 
 URL: {{{url}}}
 User's Justification: "{{{justification}}}"
 Website HTML Content:
+\`\`\`html
 {{{websiteContent.htmlContent}}}
+\`\`\`
 `,
 });
 

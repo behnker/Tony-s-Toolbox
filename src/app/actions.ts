@@ -6,8 +6,7 @@ import { generateToolMetadata } from "@/ai/flows/generate-tool-metadata";
 import { addTool, updateToolVotes, getTools as getToolsFromDb, getToolByUrl, updateTool } from "@/lib/firebase/service";
 import type { Tool } from "@/lib/types";
 import { revalidatePath } from "next/cache";
-import { Timestamp, FieldValue } from 'firebase-admin/firestore';
-import { generateToolImage } from "@/ai/flows/generate-tool-image";
+import { Timestamp } from 'firebase-admin/firestore';
 
 const formSchema = z.object({
   url: z.string().url(),
@@ -39,19 +38,19 @@ export async function submitTool(
         title: new URL(url).hostname,
         description: justification,
         categories: ['general'],
+        imageUrl: null,
     };
   }
 
-  let imageUrl: string | undefined = undefined;
-  try {
-    const imageResponse = await generateToolImage({
-      name: metadata.title,
-      categories: metadata.categories,
-    });
-    imageUrl = imageResponse.imageUrl;
-  } catch(error: any) {
-    console.error("AI image generation failed.", error);
-    // Continue without an image
+  // Basic validation for imageUrl
+  const isValidUrl = (urlString: string | null): boolean => {
+    if (!urlString) return false;
+    try {
+      const url = new URL(urlString);
+      return ['http:', 'https:'].includes(url.protocol);
+    } catch (e) {
+      return false;
+    }
   }
 
   try {
@@ -62,7 +61,7 @@ export async function submitTool(
       if (metadata.title) updatedToolData.name = metadata.title;
       if (metadata.description) updatedToolData.description = metadata.description;
       if (metadata.categories && metadata.categories.length > 0) updatedToolData.categories = metadata.categories;
-      updatedToolData.imageUrl = imageUrl;
+      updatedToolData.imageUrl = isValidUrl(metadata.imageUrl) ? metadata.imageUrl! : undefined;
       
       if (Object.keys(updatedToolData).length === 0) {
         return { success: true, data: existingTool, message: `${existingTool.name} is already up-to-date.` };
@@ -87,7 +86,7 @@ export async function submitTool(
         justification: justification,
         upvotes: 1,
         downvotes: 0,
-        ...(imageUrl && { imageUrl: imageUrl }),
+        imageUrl: isValidUrl(metadata.imageUrl) ? metadata.imageUrl! : undefined,
       };
 
       const savedTool = await addTool(newToolData);
@@ -122,25 +121,24 @@ export async function refreshTool(
       // 1. Fetch new metadata from the AI flow
       const metadata = await generateToolMetadata({ url, justification: justification || "Manual data refresh" });
       
-      // 2. Generate a new image
-      let imageUrl: string | undefined = undefined;
-      try {
-        const imageResponse = await generateToolImage({
-            name: metadata.title,
-            categories: metadata.categories,
-        });
-        imageUrl = imageResponse.imageUrl;
-      } catch(error: any) {
-        console.error("AI image generation failed.", error);
+      // Basic validation for imageUrl
+      const isValidUrl = (urlString: string | null): boolean => {
+        if (!urlString) return false;
+        try {
+          const url = new URL(urlString);
+          return ['http:', 'https:'].includes(url.protocol);
+        } catch (e) {
+          return false;
+        }
       }
   
-      // 3. Prepare the data for an update
+      // 2. Prepare the data for an update
       const updatedToolData: Partial<Omit<Tool, 'id' | 'submittedAt'>> = {};
   
       if (metadata.title) updatedToolData.name = metadata.title;
       if (metadata.description) updatedToolData.description = metadata.description;
       if (metadata.categories && metadata.categories.length > 0) updatedToolData.categories = metadata.categories;
-      updatedToolData.imageUrl = imageUrl;
+      updatedToolData.imageUrl = isValidUrl(metadata.imageUrl) ? metadata.imageUrl! : undefined;
   
       if (Object.keys(updatedToolData).length === 0) {
         const existingTool = await getToolByUrl(url);
@@ -151,7 +149,7 @@ export async function refreshTool(
   
       updatedToolData.lastUpdatedAt = Timestamp.now().toDate();
   
-      // 4. Update the tool in the database
+      // 3. Update the tool in the database
       const updatedTool = await updateTool(toolId, updatedToolData);
       revalidatePath('/');
       
