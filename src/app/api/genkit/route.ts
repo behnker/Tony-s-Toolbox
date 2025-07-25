@@ -1,6 +1,6 @@
 /**
  * @fileoverview A Genkit route handler for Next.js.
  */
-import { NextJsHandler } from '@genkit-ai/next';
+import { createNextJsHandler } from '@genkit-ai/next';
 
-export const POST = new NextJsHandler();
+export const { GET, POST } = createNextJsHandler();
