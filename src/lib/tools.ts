@@ -10,14 +10,14 @@ import {z} from 'genkit';
 export const getWebsiteContent = ai.defineTool(
   {
     name: 'getWebsiteContent',
-    description: 'Fetches the title, meta description, and OpenGraph image of a website.',
+    description: 'Fetches the title, meta description, and a representative image URL of a website.',
     inputSchema: z.object({
       url: z.string().url().describe('The URL of the website to fetch.'),
     }),
     outputSchema: z.object({
       title: z.string().describe('The title of the website.'),
       description: z.string().describe('The meta description of the website.'),
-      imageUrl: z.string().url().optional().describe('The OpenGraph image URL of the website.'),
+      imageUrl: z.string().optional().describe('The best-available image URL of the website (e.g., OpenGraph, Twitter, or high-res favicon).'),
       error: z.string().optional().describe('An error message if fetching failed.'),
     }),
   },
@@ -36,23 +36,33 @@ export const getWebsiteContent = ai.defineTool(
       const text = await response.text();
       
       const titleMatch = text.match(/<title>([^<]*)<\/title>/);
-      const descriptionMatch = text.match(/<meta\s+name="description"\s+content="([^"]*)"/);
-      const ogDescriptionMatch = text.match(/<meta\s+property="og:description"\s+content="([^"]*)"/);
+      const descriptionMatch = text.match(/<meta\s+(?:name="description"|property="og:description")\s+content="([^"]*)"/);
+
+      const title = titleMatch?.[1] || 'No title found';
+      const description = descriptionMatch?.[1] || 'No description found';
+
+      // Enhanced image search logic
       const ogImageMatch = text.match(/<meta\s+property="og:image"\s+content="([^"]*)"/);
-      const faviconMatch = text.match(/<link\s+rel="icon"\s+href="([^"]*)"/);
+      const twitterImageMatch = text.match(/<meta\s+name="twitter:image"\s+content="([^"]*)"/);
+      const appleIconMatch = text.match(/<link\s+rel="apple-touch-icon"\s+href="([^"]*)"/);
+      const highResFaviconMatch = text.match(/<link\s+rel="icon"\s+sizes="[^"]*"\s+href="([^"]*)"/);
+      const genericFaviconMatch = text.match(/<link\s+rel="icon"\s+href="([^"]*)"/);
 
-      const title = titleMatch ? titleMatch[1] : 'No title found';
-      const description = descriptionMatch ? descriptionMatch[1] : (ogDescriptionMatch ? ogDescriptionMatch[1] : 'No description found');
-      let imageUrl = ogImageMatch ? ogImageMatch[1] : undefined;
+      let imageUrl: string | undefined = 
+        ogImageMatch?.[1] || 
+        twitterImageMatch?.[1] ||
+        appleIconMatch?.[1] ||
+        highResFaviconMatch?.[1] ||
+        genericFaviconMatch?.[1];
 
-      // If no OG image, try favicon
-      if (!imageUrl && faviconMatch) {
+      // Resolve relative URL to absolute
+      if (imageUrl) {
         try {
-          // Resolve relative favicon URL to absolute
-          const faviconUrl = new URL(faviconMatch[1], url);
-imageUrl = faviconUrl.href;
+          const absoluteUrl = new URL(imageUrl, url);
+          imageUrl = absoluteUrl.href;
         } catch (e) {
-          // Ignore invalid favicon URLs
+            console.error(`Invalid image URL found: ${imageUrl}`, e);
+            imageUrl = undefined;
         }
       }
 

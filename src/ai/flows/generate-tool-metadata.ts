@@ -43,7 +43,7 @@ const prompt = ai.definePrompt({
       websiteContent: z.object({
         title: z.string(),
         description: z.string(),
-        imageUrl: z.string().url().optional(),
+        imageUrl: z.string().optional(),
         error: z.string().optional(),
       }),
     }),
@@ -59,7 +59,7 @@ Your task is to generate the following information for the tool at the given URL
 - A concise and accurate title for the tool. Use the title from the website content.
 - A clear, one or two-sentence description of what the tool does. Use the description from the website content.
 - An array of up to 3 relevant categories (e.g., "image-generation", "developer-tools", "copywriting", "diagramming", "whiteboard").
-- The URL for a relevant image, like a logo, banner, or screenshot. Use the imageUrl from the website content.
+- The URL for a relevant image, like a logo, banner, or screenshot. Use the imageUrl from the website content if it exists.
 
 If the provided website content is sparse or indicates an error, base your response on your existing knowledge of the tool at the given URL and the user's justification.
 
@@ -94,4 +94,3 @@ const generateToolMetadataFlow = ai.defineFlow(
     return output;
   }
 );
-
