@@ -1,5 +1,4 @@
 
-'use server';
 /**
  * @fileOverview A Genkit tool for fetching website content and a tool for extracting metadata from HTML.
  */
@@ -11,7 +10,7 @@ export const GenerateToolMetadataOutputSchema = z.object({
     title: z.string().describe('The name of the tool.'),
     description: z.string().describe('A short, clear description of the tool.'),
     categories: z.array(z.string()).describe('An array of relevant categories for the tool (e.g., "image-generation", "developer-tools", "copywriting", "diagramming", "whiteboard").'),
-    imageUrl: z.string().url().nullable().describe('The absolute URL of a relevant image for the tool, or null if none is found.'),
+    imageUrl: z.string().nullable().describe('The absolute URL of a relevant image for the tool, or null if none is found.'),
 });
 
 export const getWebsiteContent = ai.defineTool(
