@@ -20,11 +20,8 @@ type FormValues = z.infer<typeof formSchema>;
 const isValidUrl = (urlString: string | null | undefined): urlString is string => {
     if (!urlString) return false;
     try {
-      const url = new URL(urlString);
-      // Allow data URIs and http/https URLs with common image extensions.
-      if (url.protocol === 'data:') return true;
-      const hasImageExtension = /\.(jpg|jpeg|png|svg|webp)$/i.test(url.pathname);
-      return ['http:', 'https:'].includes(url.protocol) && hasImageExtension;
+      new URL(urlString);
+      return urlString.startsWith('http://') || urlString.startsWith('https://');
     } catch (e) {
       return false;
     }
@@ -65,7 +62,10 @@ export async function submitTool(
       if (metadata.title) updatedToolData.name = metadata.title;
       if (metadata.description) updatedToolData.description = metadata.description;
       if (metadata.categories && metadata.categories.length > 0) updatedToolData.categories = metadata.categories;
-      updatedToolData.imageUrl = isValidUrl(metadata.imageUrl) ? metadata.imageUrl : undefined;
+      
+      if (isValidUrl(metadata.imageUrl)) {
+        updatedToolData.imageUrl = metadata.imageUrl;
+      }
       
       if (Object.keys(updatedToolData).length === 0) {
         return { success: true, data: existingTool, message: `${existingTool.name} is already up-to-date.` };
@@ -90,8 +90,11 @@ export async function submitTool(
         justification: justification,
         upvotes: 1,
         downvotes: 0,
-        imageUrl: isValidUrl(metadata.imageUrl) ? metadata.imageUrl : undefined,
       };
+
+      if (isValidUrl(metadata.imageUrl)) {
+        newToolData.imageUrl = metadata.imageUrl;
+      }
 
       const savedTool = await addTool(newToolData);
       revalidatePath('/');
@@ -132,7 +135,9 @@ export async function refreshTool(
       if (metadata.description) updatedToolData.description = metadata.description;
       if (metadata.categories && metadata.categories.length > 0) updatedToolData.categories = metadata.categories;
       
-      updatedToolData.imageUrl = isValidUrl(metadata.imageUrl) ? metadata.imageUrl : undefined;
+      if (isValidUrl(metadata.imageUrl)) {
+        updatedToolData.imageUrl = metadata.imageUrl;
+      }
   
       if (Object.keys(updatedToolData).length === 0) {
         const existingTool = await getToolByUrl(url);
@@ -155,3 +160,4 @@ export async function refreshTool(
       return { success: false, error: `Failed to refresh tool data. Reason: ${errorMessage}` };
     }
   }
+
