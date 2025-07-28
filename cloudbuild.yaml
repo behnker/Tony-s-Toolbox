@@ -20,3 +20,4 @@ steps:
 options:
   # Use a more powerful machine to speed up the build
   machineType: 'E2_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
