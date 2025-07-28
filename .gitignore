@@ -23,6 +23,7 @@ serviceAccountKey.json
 # Build artifacts
 .tsbuildinfo
 next-env.d.ts
+tsconfig.tsbuildinfo
 
 # BFG
 bfg.jar
