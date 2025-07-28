@@ -1,14 +1,13 @@
 /**
  * @fileoverview A Genkit route handler for Next.js.
  */
-import nextJsHandler from '@genkit-ai/next';
+import { nextJsHandler } from '@genkit-ai/next';
+import { generateShortDescriptionFlow } from '@/ai/flows/generate-short-description';
+import { generateToolMetadataFlow } from '@/ai/flows/generate-tool-metadata';
 
-// By importing the flow files, you register them with the Genkit registry.
-import '@/ai/flows/generate-short-description';
-import '@/ai/flows/generate-tool-metadata';
-
-// The handler will automatically discover and serve the flows from the registry.
-const handler = nextJsHandler();
+const handler = nextJsHandler({
+  actions: [generateShortDescriptionFlow, generateToolMetadataFlow],
+});
 
 export const GET = handler;
 export const POST = handler;
