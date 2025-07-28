@@ -24,12 +24,11 @@ export async function generateToolMetadata(input: GenerateToolMetadataInput): Pr
 }
 
 
-const generateToolMetadataFlow = ai.defineFlow(
+export const generateToolMetadataFlow = ai.defineFlow(
   {
     name: 'generateToolMetadataFlow',
     inputSchema: GenerateToolMetadataInputSchema,
     outputSchema: GenerateToolMetadataOutputSchema,
-    tools: [getWebsiteContent, extractMetadataFromHtml]
   },
   async ({url, justification}) => {
     // 1. Fetch the raw HTML content of the website.

@@ -15,10 +15,14 @@ If file uploads to Firebase Storage are failing with a CORS error, you need to a
     gcloud auth login
     ```
 
-3.  **Apply the CORS configuration**: Run the following command from your project's root directory, replacing `[YOUR_BUCKET_NAME]` with your actual storage bucket name (e.g., `gs://ai-tool-explorer-txijl.appspot.com`). You can find your bucket name in the Firebase Console under Storage.
+3.  **Apply the CORS configuration**: Run the following command from your project's root directory.
 
     ```bash
-    gcloud storage buckets update gs://[YOUR_BUCKET_NAME] --cors-file=./cors.json
+    gcloud storage buckets update gs://ai-tool-explorer-txijl.firebasestorage.app --cors-file=./cors.json
     ```
+
+    **Note on Bucket Names:**
+    *   The command above uses the `gsutil` URI for your bucket (`gs://...`). This is the format the `gcloud` CLI expects. You can find this URI in the Firebase Console's Storage section or the Google Cloud Console.
+    *   In your application code (like `src/lib/firebase/client.ts`), you might see the bucket name in the format `ai-tool-explorer-txijl.appspot.com`. Both of these names point to the same bucket.
 
 This will allow your web application to upload files to Firebase Storage.

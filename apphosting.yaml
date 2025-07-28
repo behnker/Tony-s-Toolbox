@@ -1,7 +1,47 @@
 # Settings to manage and configure a Firebase App Hosting backend.
 # https://firebase.google.com/docs/app-hosting/configure
-
 runConfig:
-  # Increase this value if you'd like to automatically spin up
-  # more instances in response to increased traffic.
-  maxInstances: 1
+  # The server's CPU.
+  # The value can be a number or a string with a "m" suffix.
+  # https://firebase.google.com/docs/app-hosting/reference/rest/v1beta1/projects.locations.backends#cpu
+  cpu: 512m
+  # The server's memory.
+  # The value can be a string with a "M" or "G" suffix for megabytes and gigabytes, respectively.
+  # https://firebase.google.com/docs/app-hosting/reference/rest/v1beta1/projects.locations.backends#memory
+  memory: 512Mi
+# The commands to build your app.
+# The output of this build is what is uploaded to the backend.
+# https://firebase.google.com/docs/app-hosting/configure#build
+build:
+  # The command to run to build your app.
+  # This is run from the root of your repository.
+  run: npm run build
+  # The output of the build.
+  # This is the directory that is uploaded to the backend.
+  output: .next
+# The command to run to start your app.
+# This is run from the root of the uploaded directory.
+# https://firebase.google.com/docs/app-hosting/configure#start
+start:
+  # The command to run to start your app.
+  run: npm run start
+# The environment variables to set on the backend.
+# https://firebase.google.com/docs/app-hosting/configure#environment-variables
+env:
+  # The port to listen on.
+  # This is set automatically by App Hosting.
+  - variable: PORT
+    value: "8080"
+  # Any other environment variables you want to set.
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: "ai-tool-explorer-txijl"
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: "AIzaSyCXBxBGFIfOV8BiWphi7n05qBCSc_kSYZs"
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: "ai-tool-explorer-txijl.firebaseapp.com"
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "380797253619"
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: "1:380797253619:web:5f5ac986307715b0690486"
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: "ai-tool-explorer-txijl.firebasestorage.app"

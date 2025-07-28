@@ -1,0 +1,16 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Match the path for tool images
+    match /tool-images/{toolId}/{fileName} {
+      // Allow reads from anyone (if you want images to be public)
+      allow read;
+
+      // Allow writes (uploads, updates, deletes) 
+      // if the uploaded file is an image and under 10MB.
+      allow write: if request.resource.size < 10 * 1024 * 1024 &&
+                      request.resource.contentType.matches('image/.*');
+    }
+  }
+}

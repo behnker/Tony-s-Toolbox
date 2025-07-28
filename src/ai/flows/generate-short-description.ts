@@ -30,10 +30,15 @@ const prompt = ai.definePrompt({
   name: 'generateShortDescriptionPrompt',
   input: {schema: GenerateShortDescriptionInputSchema},
   output: {schema: GenerateShortDescriptionOutputSchema},
-  prompt: `You are an expert at creating short, concise descriptions of AI tools based on their website content.\n\nGiven the following website content, generate a short description of the tool. The description should be no more than 50 words.\n\nURL: {{{url}}}\nWebsite Content: {{{websiteContent}}}`,
+  prompt: `You are an expert at creating short, concise descriptions of AI tools based on their website content.
+
+Given the following website content, generate a short description of the tool. The description should be no more than 50 words.
+
+URL: {{{url}}}
+Website Content: {{{websiteContent}}}`,
 });
 
-const generateShortDescriptionFlow = ai.defineFlow(
+export const generateShortDescriptionFlow = ai.defineFlow(
   {
     name: 'generateShortDescriptionFlow',
     inputSchema: GenerateShortDescriptionInputSchema,
