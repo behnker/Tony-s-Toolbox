@@ -107,7 +107,7 @@ export default function Home() {
     return ["all", ...Array.from(categories)];
   }, [tools]);
   
-  const allSubmitters = usememo(() => {
+  const allSubmitters = useMemo(() => {
     const submitters = new Set<string>();
     tools.forEach((tool) => {
       if (tool.submittedBy) {
