@@ -8,7 +8,42 @@
   "storage": {
     "rules": "storage.rules"
   },
-  "apphosting": {
-    "backends": ["studio"]
+  "apphosting": [
+    {
+      "backends": [
+        "studio"
+      ]
+    },
+    {
+      "backendId": "tonys-toolbox-backend",
+      "rootDir": "/",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "functions"
+      ]
+    }
+  ],
+  "emulators": {
+    "apphosting": {
+      "port": 5002,
+      "rootDirectory": "./",
+      "startCommand": "npm run dev"
+    },
+    "auth": {
+      "port": 9099
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "storage": {
+      "port": 9199
+    },
+    "ui": {
+      "enabled": true
+    },
+    "singleProjectMode": true
   }
 }

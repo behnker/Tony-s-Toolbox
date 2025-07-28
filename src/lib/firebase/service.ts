@@ -4,6 +4,7 @@ import { initialTools } from "@/lib/data";
 import { Timestamp, FieldValue } from 'firebase-admin/firestore';
 
 async function seedDatabase() {
+    console.log("Seeding database...");
     const toolsCollection = db.collection("tools");
     const batch = db.batch();
     initialTools.forEach((tool) => {
@@ -15,6 +16,7 @@ async function seedDatabase() {
         batch.set(newDocRef, seedData);
     });
     await batch.commit();
+    console.log("Database seeded.");
 }
 
 function convertDocToTool(doc: FirebaseFirestore.DocumentSnapshot): Tool {
@@ -57,15 +59,27 @@ export async function getTools(): Promise<Tool[]> {
     const toolsCollection = db.collection("tools");
     const q = toolsCollection.orderBy("submittedAt", "desc");
     
-    let toolsSnapshot = await q.get();
-    
-    if (toolsSnapshot.empty) {
-        console.log("No tools found, seeding initial data.");
-        await seedDatabase();
+    let toolsSnapshot;
+    try {
+        console.log("Fetching tools...");
         toolsSnapshot = await q.get();
+        if (toolsSnapshot.empty) {
+            console.log("No tools found, seeding initial data.");
+            await seedDatabase();
+            toolsSnapshot = await q.get();
+        }
+    } catch (error: any) {
+        if (error.code === 5) { // 5 = NOT_FOUND
+            console.log("Tools collection not found, seeding initial data.");
+            await seedDatabase();
+            toolsSnapshot = await q.get();
+        } else {
+            throw error;
+        }
     }
 
     const toolsList = toolsSnapshot.docs.map(convertDocToTool);
+    console.log(`Found ${toolsList.length} tools.`);
 
     return toolsList;
 }
