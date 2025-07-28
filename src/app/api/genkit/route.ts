@@ -5,9 +5,10 @@ import nextJsHandler from '@genkit-ai/next';
 import { generateShortDescriptionFlow } from '@/ai/flows/generate-short-description';
 import { generateToolMetadataFlow } from '@/ai/flows/generate-tool-metadata';
 
-const handler = nextJsHandler({
-  actions: [generateShortDescriptionFlow, generateToolMetadataFlow],
-});
+const handler = nextJsHandler(
+  generateShortDescriptionFlow,
+  generateToolMetadataFlow
+);
 
 export const GET = handler;
 export const POST = handler;
