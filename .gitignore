@@ -19,3 +19,11 @@ firestore-debug.log*
 
 # Service Account Keys
 serviceAccountKey.json
+
+# Build artifacts
+.tsbuildinfo
+next-env.d.ts
+
+# BFG
+bfg.jar
+.git.bfg-report/
