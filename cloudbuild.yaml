@@ -1,26 +1,22 @@
 steps:
-# 1. Use the official Node.js 20 image to install dependencies.
+# Step 1: Install project dependencies
 - name: 'gcr.io/cloud-builders/npm'
   args: ['install']
 
-# 2. Use the same Node.js 20 image to build the Next.js app.
+# Step 2: Build the Next.js application for production
 - name: 'gcr.io/cloud-builders/npm'
   args: ['run', 'build']
 
-# 3. Install firebase-tools and deploy.
-# We use the npm builder to install firebase-tools, which is more reliable
-# than pulling the gcr.io/firebase-tools/firebase image directly.
+# Step 3: Run the deployment using the firebase-tools installed in node_modules
+# This is more reliable than using a separate firebase-tools image.
 - name: 'gcr.io/cloud-builders/npm'
   args:
-    - 'install'
-    - '--global'
-    - 'firebase-tools'
-- name: 'node:20' # Use a node environment to ensure firebase can be found in the path
-  entrypoint: 'firebase'
-  args:
-    - 'deploy'
-    - '--only=apphosting'
-    - '--project=ai-tool-explorer-txijl'
+    - 'run',
+    - 'firebase',
+    - '--',
+    - 'deploy',
+    - '--only=apphosting',
+    - '--project=ai-tool-explorer-txijl',
     - '--non-interactive'
 
 options:
