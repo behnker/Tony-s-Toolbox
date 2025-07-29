@@ -1,12 +1,15 @@
 
-import { initializeApp, getApps, getApp } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import { initializeApp, getApps, getApp, App } from "firebase-admin/app";
+import { getFirestore, Firestore } from "firebase-admin/firestore";
 
-// When running in a Google Cloud environment like App Hosting, 
-// initializeApp() automatically discovers the project's configuration
-// and credentials.
-const app = !getApps().length ? initializeApp() : getApp();
+// This ensures we have a single instance of the Firebase Admin SDK
+let app: App;
+if (!getApps().length) {
+  app = initializeApp();
+} else {
+  app = getApp();
+}
 
-const db = getFirestore(app);
+const db: Firestore = getFirestore(app);
 
 export { app, db };
