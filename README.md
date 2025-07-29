@@ -156,3 +156,5 @@ If you encounter CORS errors when uploading files to Firebase Storage in a new e
     gcloud storage buckets update gs://[YOUR_BUCKET_ID] --cors-file=./cors.json
     ```
     (Replace `[YOUR_BUCKET_ID]` with your project's storage bucket ID, e.g., `ai-tool-explorer-txijl.appspot.com`).
+
+<!-- Added a comment to trigger a build -->
