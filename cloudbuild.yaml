@@ -1,28 +1,28 @@
 steps:
   # Debug Step: Check Node.js version
-  - name: 'gcr.io/cloud-builders/nodejs:lts'
+  - name: 'gcr.io/cloud-builders/npm:node20'
     entrypoint: 'node'
     args: ['-v']
 
   # Step 0: Install project dependencies using npm ci for deterministic builds
-  - name: 'gcr.io/cloud-builders/nodejs:lts'
+  - name: 'gcr.io/cloud-builders/npm:node20'
     args: ['npm', 'ci']
 
   # Step 1: Run Linter (Quality Gate)
-  - name: 'gcr.io/cloud-builders/nodejs:lts'
+  - name: 'gcr.io/cloud-builders/npm:node20'
     args: ['npm', 'run', 'lint']
 
   # Step 2: Run Type Checker (Quality Gate)
-  - name: 'gcr.io/cloud-builders/nodejs:lts'
+  - name: 'gcr.io/cloud-builders/npm:node20'
     args: ['npm', 'run', 'typecheck']
 
   # Step 3: Build the Next.js application for production
-  - name: 'gcr.io/cloud-builders/nodejs:lts'
+  - name: 'gcr.io/cloud-builders/npm:node20'
     args: ['npm', 'run', 'build', '--', '--no-lint']
 
   # Step 4: Run the deployment using the firebase-tools installed in node_modules
   # This is more reliable than using a separate firebase-tools image.
-  - name: 'gcr.io/cloud-builders/nodejs:lts'
+  - name: 'gcr.io/cloud-builders/npm:node20'
     args:
       - 'npm'
       - 'run'
