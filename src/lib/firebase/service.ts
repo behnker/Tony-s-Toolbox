@@ -69,12 +69,15 @@ export async function getTools(): Promise<Tool[]> {
             toolsSnapshot = await q.get();
         }
     } catch (error: any) {
-        if (error.code === 5) { // 5 = NOT_FOUND
+        if (error.code === 5) { // 5 = NOT_FOUND, collection doesn't exist
             console.log("Tools collection not found, seeding initial data.");
             await seedDatabase();
             toolsSnapshot = await q.get();
         } else {
-            throw error;
+            console.error("Error fetching tools, possibly due to auth issue. Returning empty list.", error);
+            // If we can't fetch tools, we can't run the app.
+            // Instead of crashing, return an empty array.
+            return [];
         }
     }
 
