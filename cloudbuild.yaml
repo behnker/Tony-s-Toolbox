@@ -1,20 +1,20 @@
 # Something strange
 steps:
 # Debugging Step: Check Node.js version
-- name: 'gcr.io/cloud-builders/node:20'
+- name: 'gcr.io/cloud-builders/nodejs:20'
   entrypoint: 'node'
   args: ['-v']
 # Step 1: Install project dependencies
-- name: 'gcr.io/cloud-builders/node:20'
+- name: 'gcr.io/cloud-builders/nodejs:20'
   args: ['npm', 'install']
 
 # Step 2: Build the Next.js application for production
-- name: 'gcr.io/cloud-builders/node:20'
+- name: 'gcr.io/cloud-builders/nodejs:20'
   args: ['npm', 'run', 'build']
 
 # Step 3: Run the deployment using the firebase-tools installed in node_modules
 # This is more reliable than using a separate firebase-tools image.
-- name: 'gcr.io/cloud-builders/node:20'
+- name: 'gcr.io/cloud-builders/nodejs:20'
   args:
     - 'npm'
     - 'run'
