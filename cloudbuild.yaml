@@ -12,12 +12,12 @@ steps:
 # This is more reliable than using a separate firebase-tools image.
 - name: 'gcr.io/cloud-builders/npm'
   args:
-    - 'run',
-    - 'firebase',
-    - '--',
-    - 'deploy',
-    - '--only=apphosting',
-    - '--project=ai-tool-explorer-txijl',
+    - 'run'
+    - 'firebase'
+    - '--'
+    - 'deploy'
+    - '--only=apphosting'
+    - '--project=ai-tool-explorer-txijl'
     - '--non-interactive'
 
 options:
