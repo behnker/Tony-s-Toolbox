@@ -1,5 +1,9 @@
 # Something strange
 steps:
+# Debugging Step: Check Node.js version
+- name: 'gcr.io/cloud-builders/node:20'
+  entrypoint: 'node'
+  args: ['-v']
 # Step 1: Install project dependencies
 - name: 'gcr.io/cloud-builders/node:20'
   args: ['npm', 'install']
@@ -19,7 +23,7 @@ steps:
     - 'deploy'
     - '--only=apphosting'
     - '--project=ai-tool-explorer-txijl'
-    - '--non-interactive'
+20 what other     - '--non-interactive'
 
 options:
   # Use a more powerful machine to speed up the build
