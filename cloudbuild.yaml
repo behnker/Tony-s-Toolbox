@@ -23,7 +23,7 @@ steps:
     - 'deploy'
     - '--only=apphosting'
     - '--project=ai-tool-explorer-txijl'
-20 what other     - '--non-interactive'
+    - '--non-interactive'
 
 options:
   # Use a more powerful machine to speed up the build
