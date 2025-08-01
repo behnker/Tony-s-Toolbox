@@ -31,10 +31,10 @@ cd Tony-s-Toolbox
 
 ### 2. Install Dependencies
 
-Install the necessary Node.js packages using npm:
+Install the necessary Node.js packages using npm. It's recommended to use `npm ci` for clean and deterministic installs, especially in CI/CD environments.
 
 ```bash
-npm install
+npm ci
 ```
 
 ### 3. Initialize Firebase
@@ -107,7 +107,15 @@ npm run typecheck
 
 ### Pushing and Deploying
 
-The project is configured for **Continuous Deployment**. Every push to the `master` branch will automatically trigger a new build and deployment via Google Cloud Build.
+The project is configured for **Continuous Deployment** using Google Cloud Build. Every push to the `master` branch will automatically trigger a new build and deployment process defined in `cloudbuild.yaml`. The build steps include:
+
+1.  **Install dependencies**: `npm ci`
+2.  **Run Linter**: `npm run lint`
+3.  **Run Type Checker**: `npm run typecheck`
+4.  **Build Next.js application**: `npm run build -- --no-lint`
+5.  **Deploy to Firebase App Hosting**: `npm run firebase -- deploy --only=apphosting --project=ai-tool-explorer-txijl --non-interactive`
+
+To deploy your changes:
 
 1.  **Commit your changes:**
     ```bash
@@ -201,4 +209,3 @@ If you encounter CORS errors when uploading files to Firebase Storage in a new e
     ```
     (Replace `[YOUR_BUCKET_ID]` with your project's storage bucket ID, e.g., `ai-tool-explorer-txijl.appspot.com`).
 
-<!-- Added a comment to trigger a build -->
