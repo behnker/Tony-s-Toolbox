@@ -9,11 +9,6 @@
   },
   "apphosting": [
     {
-      "backends": [
-        "studio"
-      ]
-    },
-    {
       "backendId": "tonys-toolbox-backend",
       "rootDir": "./",
       "ignore": [
