@@ -228,11 +228,14 @@ gcloud projects add-iam-policy-binding ai-tool-explorer-txijl \
 gcloud projects add-iam-policy-binding ai-tool-explorer-txijl \
   --member serviceAccount:380797253619@cloudbuild.gserviceaccount.com \
   --role roles/editor
+gcloud projects add-iam-policy-binding ai-tool-explorer-txijl \
+  --member serviceAccount:380797253619@cloudbuild.gserviceaccount.com \
+  --role roles/resourcemanager.projectIamAdmin
 gcloud iam service-accounts add-iam-policy-binding firebase-app-hosting-compute@ai-tool-explorer-txijl.iam.gserviceaccount.com \
   --member serviceAccount:380797253619@cloudbuild.gserviceaccount.com \
   --role roles/iam.serviceAccountUser
 ```
 
-These commands grant the Cloud Build service account (`380797253619@cloudbuild.gserviceaccount.com`) the `Firebase App Hosting Admin` role (`roles/firebaseapphosting.admin`), the `Project Editor` role (`roles/editor`), and the `Service Account User` role (`roles/iam.serviceAccountUser`) on the `firebase-app-hosting-compute@ai-tool-explorer-txijl.iam.gserviceaccount.com` service account for the project `ai-tool-explorer-txijl`. This last role allows the Cloud Build service account to impersonate or act as the App Hosting's internal compute service account, which is crucial for resolving certain deployment permission issues.
+These commands grant the Cloud Build service account (`380797253619@cloudbuild.gserviceaccount.com`) the `Firebase App Hosting Admin` role (`roles/firebaseapphosting.admin`), the `Project Editor` role (`roles/editor`), the `Project IAM Admin` role (`roles/resourcemanager.projectIamAdmin`), and the `Service Account User` role (`roles/iam.serviceAccountUser`) on the `firebase-app-hosting-compute@ai-tool-explorer-txijl.iam.gserviceaccount.com` service account for the project `ai-tool-explorer-txijl`. This last role allows the Cloud Build service account to impersonate or act as the App Hosting's internal compute service account, which is crucial for resolving certain deployment permission issues.
 
 As an AI assistant, I will always provide full `gcloud` and `firebase` commands within our chat for transparency and ease of execution.
