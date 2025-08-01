@@ -215,14 +215,17 @@ This project is actively supported by an AI assistant integrated within Firebase
 
 **Important Commands for the AI Assistant:**
 
-To ensure the AI assistant has the necessary permissions for deployment tasks, particularly for Firebase App Hosting, the following `gcloud` command was executed and is crucial for future reference:
+To ensure the AI assistant has the necessary permissions for deployment tasks, particularly for Firebase App Hosting, the following `gcloud` commands were executed and are crucial for future reference:
 
 ```bash
 gcloud projects add-iam-policy-binding ai-tool-explorer-txijl \
   --member serviceAccount:380797253619@cloudbuild.gserviceaccount.com \
   --role roles/firebaseapphosting.admin
+gcloud projects add-iam-policy-binding ai-tool-explorer-txijl \
+  --member serviceAccount:380797253619@cloudbuild.gserviceaccount.com \
+  --role roles/editor
 ```
 
-This command grants the Cloud Build service account (`380797253619@cloudbuild.gserviceaccount.com`) the `Firebase App Hosting Admin` role (`roles/firebaseapphosting.admin`) for the project `ai-tool-explorer-txijl`.
+These commands grant the Cloud Build service account (`380797253619@cloudbuild.gserviceaccount.com`) the `Firebase App Hosting Admin` role (`roles/firebaseapphosting.admin`) and the `Project Editor` role (`roles/editor`) for the project `ai-tool-explorer-txijl`.
 
 As an AI assistant, I will always provide full `gcloud` and `firebase` commands within our chat for transparency and ease of execution.
