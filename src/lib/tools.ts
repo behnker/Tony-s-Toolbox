@@ -41,12 +41,12 @@ export const getWebsiteContent = ai.defineTool(
       
       return { htmlContent };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(`Error fetching website content for ${url}:`, error);
       // Return a structured error to the LLM
       return {
         htmlContent: undefined,
-        error: `Failed to retrieve content: ${error.message}`
+        error: `Failed to retrieve content: ${error instanceof Error ? error.message : String(error)}`
     };
     }
   }
@@ -81,7 +81,7 @@ Follow these rules precisely:
     *   If neither meta description exists, return a concise, one-sentence summary based on the text content of the page's \`<h1>\` and the first meaningful \`<p>\` tag.
 
 3.  **Categories:**
-    *   Based on the description and title, provide an array of up to 3 relevant categories (e.g., "image-generation", "developer-tools", "copywriting").
+    *   Based on the description and title, provide an array of up to 3 relevant categories (e.g., "image-generation", "developer-tools", "copywriting", "diagramming", "whiteboard").
 
 4.  **Image URL:**
     *   Your primary goal is to find a URL for a logo or a representative image.

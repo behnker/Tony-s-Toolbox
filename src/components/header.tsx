@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { SubmitToolDialog } from "@/components/submit-tool-dialog";
 import type { Tool } from "@/lib/types";
 import { PlusCircle } from "lucide-react";
+import Link from "next/link";
 
 type AppHeaderProps = {
   onToolSubmitted: (tool: Tool) => void;
@@ -15,12 +16,12 @@ export function AppHeader({ onToolSubmitted }: AppHeaderProps) {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
         <div className="mr-4 hidden md:flex">
-          <a className="mr-6 flex items-center space-x-2" href="/">
+          <Link className="mr-6 flex items-center space-x-2" href="/">
             <Logo className="h-6 w-6 text-primary" />
             <span className="hidden font-bold sm:inline-block font-headline">
-              Tony's Toolbox
+              Tony&apos;s Toolbox
             </span>
-          </a>
+          </Link>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">
             <SubmitToolDialog onToolSubmitted={onToolSubmitted}>

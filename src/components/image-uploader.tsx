@@ -83,8 +83,8 @@ export function ImageUploader({ toolId, onUploadComplete }: ImageUploaderProps) 
           } else {
              setError(result.error || "Failed to update tool in database.");
           }
-        } catch (finalError: any) {
-             setError(`An unexpected error occurred: ${finalError.message}`);
+        } catch (finalError: unknown) {
+             setError(`An unexpected error occurred: ${finalError instanceof Error ? finalError.message : String(finalError)}`);
         } finally {
             // Reset progress bar regardless of outcome
             setUploadProgress(null);

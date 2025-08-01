@@ -22,7 +22,7 @@ const isValidUrl = (urlString: string | null | undefined): urlString is string =
     try {
       new URL(urlString);
       return urlString.startsWith('http://') || urlString.startsWith('https://');
-    } catch (e) {
+    } catch (_e) {
       return false;
     }
 }
@@ -42,7 +42,7 @@ export async function submitTool(
   let metadata;
   try {
     metadata = await generateToolMetadata({ url, justification });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("AI metadata generation failed, using fallback data.", error);
     // Create a fallback tool.
     metadata = {

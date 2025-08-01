@@ -22,15 +22,15 @@ async function seedDatabase() {
 function convertDocToTool(doc: FirebaseFirestore.DocumentSnapshot): Tool {
     const data = doc.data()!;
     
-    const convertTimestamp = (ts: any): Date | undefined => {
+    const convertTimestamp = (ts: unknown): Date | undefined => {
         if (!ts) return undefined;
         if (ts instanceof Timestamp) return ts.toDate();
         // Handle cases where it might already be a Date object or a string
         if (ts instanceof Date) return ts;
         try {
-            const date = new Date(ts);
+            const date = new Date(ts as string);
             if (!isNaN(date.getTime())) return date;
-        } catch (e) {
+        } catch (_e) {
              // Ignore invalid date strings
         }
         return undefined;
@@ -68,8 +68,8 @@ export async function getTools(): Promise<Tool[]> {
             await seedDatabase();
             toolsSnapshot = await q.get();
         }
-    } catch (error: any) {
-        if (error.code === 5) { // 5 = NOT_FOUND, collection doesn't exist
+    } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'code' in error && error.code === 5) { // 5 = NOT_FOUND, collection doesn't exist
             console.log("Tools collection not found, seeding initial data.");
             await seedDatabase();
             toolsSnapshot = await q.get();
@@ -100,7 +100,7 @@ export async function addTool(tool: Omit<Tool, 'id' | 'submittedAt'>): Promise<T
 export async function updateToolVotes(toolId: string, upvoteIncrement: number, downvoteIncrement: number) {
   const toolRef = db.collection("tools").doc(toolId);
   
-  const updateData: { [key: string]: any } = {};
+  const updateData: Record<string, FieldValue | number> = {};
   if (upvoteIncrement !== 0) {
     updateData.upvotes = FieldValue.increment(upvoteIncrement);
   }
@@ -130,7 +130,7 @@ export async function updateTool(toolId: string, toolData: Partial<Omit<Tool, 'i
     const toolRef = db.collection("tools").doc(toolId);
     
     // Create a mutable copy and filter out undefined values
-    const serializableData: { [key: string]: any } = {};
+    const serializableData: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(toolData)) {
       if (value !== undefined) {
         serializableData[key] = value;

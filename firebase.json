@@ -1,7 +1,6 @@
 {
   "firestore": {
     "database": "(default)",
-    "location": "eur3",
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
@@ -16,7 +15,7 @@
     },
     {
       "backendId": "tonys-toolbox-backend",
-      "rootDir": "/",
+      "rootDir": "./",
       "ignore": [
         "node_modules",
         ".git",
@@ -28,17 +27,16 @@
   ],
   "emulators": {
     "apphosting": {
-      "port": 5004,
+      "port": 9007,
       "host": "0.0.0.0",
-      "rootDirectory": "./",
-      "startCommand": "npm run dev -- -p 9006"
+      "startCommand": "npm run dev -- -p 9007"
     },
     "auth": {
-      "port": 9101,
+      "port": 9102,
       "host": "0.0.0.0"
     },
     "firestore": {
-      "port": 8082,
+      "port": 8084,
       "host": "0.0.0.0"
     },
     "storage": {
@@ -48,16 +46,8 @@
     "ui": {
       "enabled": true,
       "host": "0.0.0.0",
-      "port": 4003
+      "port": 4004
     },
-    "singleProjectMode": true,
-    "hub": {
-      "host": "0.0.0.0",
-      "port": 4403
-    },
-    "logging": {
-      "host": "0.0.0.0",
-      "port": 4503
-    }
+    "singleProjectMode": true
   }
 }

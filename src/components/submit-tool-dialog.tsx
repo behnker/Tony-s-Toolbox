@@ -90,7 +90,7 @@ export function SubmitToolDialog({ children, onToolSubmitted }: SubmitToolDialog
         <DialogHeader>
           <DialogTitle>Submit a New AI Tool</DialogTitle>
           <DialogDescription>
-            Found a cool tool? Share it with the community! We'll use AI to automatically fetch its details.
+            Found a cool tool? Share it with the community! We&apos;ll use AI to automatically fetch its details.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -129,7 +129,7 @@ export function SubmitToolDialog({ children, onToolSubmitted }: SubmitToolDialog
                   <FormLabel>Why do you recommend this tool?</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="It's great for..."
+                      placeholder="It&apos;s great for..."
                       className="resize-none"
                       {...field}
                       disabled={isSubmitting}

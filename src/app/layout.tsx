@@ -1,6 +1,18 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
+import { Inter, Space_Grotesk } from 'next/font/google';
+import { cn } from "@/lib/utils";
+
+const fontSans = Inter({
+  subsets: ['latin'],
+  variable: '--font-sans',
+});
+
+const fontDisplay = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-display',
+});
 
 export const metadata: Metadata = {
   title: "Tony's Toolbox",
@@ -14,12 +26,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet"></link>
-      </head>
-      <body className="font-body antialiased">
+      <body
+        className={cn(
+          "min-h-screen bg-background font-sans antialiased",
+          fontSans.variable,
+          fontDisplay.variable
+        )}
+      >
         {children}
         <Toaster />
       </body>
