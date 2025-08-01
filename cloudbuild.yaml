@@ -23,6 +23,7 @@ steps:
   # Step 4: Run the deployment using the firebase-tools installed in node_modules
   # This is more reliable than using a separate firebase-tools image.
   - name: 'node:20'
+    id: 'Deploy to Firebase App Hosting'
     args:
       - 'npm'
       - 'run'
@@ -37,3 +38,5 @@ options:
   # Use a more powerful machine to speed up the build
   machineType: 'E2_HIGHCPU_8'
   logging: CLOUD_LOGGING_ONLY
+
+serviceAccount: 'projects/ai-tool-explorer-txijl/serviceAccounts/380797253619@cloudbuild.gserviceaccount.com'
