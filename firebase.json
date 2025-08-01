@@ -27,26 +27,26 @@
   ],
   "emulators": {
     "apphosting": {
-      "port": 9007,
+      "port": 9058,
       "host": "0.0.0.0",
-      "startCommand": "npm run dev -- -p 9007"
+      "startCommand": "npm run dev -- -p 9058"
     },
     "auth": {
-      "port": 9102,
+      "port": 9153,
       "host": "0.0.0.0"
     },
     "firestore": {
-      "port": 8084,
+      "port": 8135,
       "host": "0.0.0.0"
     },
     "storage": {
-      "port": 9200,
+      "port": 9251,
       "host": "0.0.0.0"
     },
     "ui": {
       "enabled": true,
       "host": "0.0.0.0",
-      "port": 4004
+      "port": 4055
     },
     "singleProjectMode": true
   }
