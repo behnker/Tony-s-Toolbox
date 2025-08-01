@@ -217,9 +217,18 @@ For continuous deployment via Google Cloud Build, the `firebase.json` has been c
 
 This project is actively supported by an AI assistant integrated within Firebase Studio IDX. The assistant has direct access to the project's files and the terminal, and will proactively assist with development tasks, debugging, and deployment.
 
-**Important Commands for the AI Assistant:**
+**Troubleshooting Persistent "Policy update access denied" Errors:**
 
-To ensure the AI assistant has the necessary permissions for deployment tasks, particularly for Firebase App Hosting, the following `gcloud` commands were executed and are crucial for future reference:
+When deploying to Firebase App Hosting, a persistent "Policy update access denied" error can occur, even after granting extensive IAM roles. This often indicates an issue beyond standard project-level permissions. To troubleshoot, we have taken the following steps:
+
+1.  **Granting Standard Roles:** We initially granted the Cloud Build service account the `Firebase App Hosting Admin` (`roles/firebaseapphosting.admin`), `Project Editor` (`roles/editor`), and `Project IAM Admin` (`roles/resourcemanager.projectIamAdmin`) roles.
+2.  **Service Account Impersonation:** We also granted the `Service Account User` role (`roles/iam.serviceAccountUser`) to allow the Cloud Build service account to impersonate the App Hosting compute service account.
+3.  **Diagnostic "Sledgehammer" Approach:** As a final diagnostic step, we granted the `Owner` role (`roles/owner`) to the Cloud Build service account. This is an insecure, temporary measure to confirm if the issue is indeed related to permissions.
+
+   *   **If granting `Owner` succeeds:** The problem is confirmed to be with permissions. We will then work to identify a more restrictive set of roles.
+   *   **If granting `Owner` fails:** The issue is likely due to an **Organization Policy** that is restricting the `setIamPolicy` call, which will require contacting a Google Cloud organization administrator.
+
+The following commands were used to grant these roles:
 
 ```bash
 gcloud projects add-iam-policy-binding ai-tool-explorer-txijl \
@@ -234,8 +243,9 @@ gcloud projects add-iam-policy-binding ai-tool-explorer-txijl \
 gcloud iam service-accounts add-iam-policy-binding firebase-app-hosting-compute@ai-tool-explorer-txijl.iam.gserviceaccount.com \
   --member serviceAccount:380797253619@cloudbuild.gserviceaccount.com \
   --role roles/iam.serviceAccountUser
+gcloud projects add-iam-policy-binding ai-tool-explorer-txijl \
+  --member serviceAccount:380797253619@cloudbuild.gserviceaccount.com \
+  --role roles/owner
 ```
-
-These commands grant the Cloud Build service account (`380797253619@cloudbuild.gserviceaccount.com`) the `Firebase App Hosting Admin` role (`roles/firebaseapphosting.admin`), the `Project Editor` role (`roles/editor`), the `Project IAM Admin` role (`roles/resourcemanager.projectIamAdmin`), and the `Service Account User` role (`roles/iam.serviceAccountUser`) on the `firebase-app-hosting-compute@ai-tool-explorer-txijl.iam.gserviceaccount.com` service account for the project `ai-tool-explorer-txijl`. This last role allows the Cloud Build service account to impersonate or act as the App Hosting's internal compute service account, which is crucial for resolving certain deployment permission issues.
 
 As an AI assistant, I will always provide full `gcloud` and `firebase` commands within our chat for transparency and ease of execution.
